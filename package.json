@@ -4,7 +4,10 @@
   "description": "Voice channel manager for Discord",
   "main": "dist/app.js",
   "scripts": {
-    "test": "npm run build && npm run start"
+    "build": "tsc",
+    "start": "node -v && node dist/app.js",
+    "test": "npm run build && npm run start",
+    "clean": "rm -rf dist/"
   },
   "repository": {
     "type": "git",
@@ -22,12 +25,14 @@
   },
   "homepage": "https://github.com/Twijn/VoiceTwine#readme",
   "devDependencies": {
+    "pino-pretty": "^13.0.0",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.26.1"
   },
   "dependencies": {
     "discord.js": "^14.18.0",
     "dotenv": "^16.4.7",
+    "mariadb": "^3.4.0",
     "pino": "^9.6.0",
     "sequelize": "^6.37.6"
   }
