@@ -2,6 +2,10 @@ import sequelize from "../database";
 import logger from "../../../logger";
 
 import {DiscordUser} from "./discorduser.model";
+import {DiscordGuild} from "./discordguild.model";
+
+DiscordUser.hasMany(DiscordGuild, {foreignKey: "ownerId"});
+DiscordGuild.belongsTo(DiscordUser, {foreignKey: "ownerId"});
 
 export const initModels = async () => {
     try {
