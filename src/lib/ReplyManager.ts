@@ -1,4 +1,4 @@
-import {EmbedBuilder, Guild, Message} from "discord.js";
+import {EmbedBuilder, Guild, Message, MessageFlags} from "discord.js";
 
 const SUCCESS_COLOR = 0x32a852;
 const ERROR_COLOR = 0xab4b3c;
@@ -27,7 +27,7 @@ export default class ReplyManager<T extends {reply: (message: any) => Promise<Me
                         text: `${this.interaction.guild.name} • VoiceTwine`,
                     }),
             ],
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         };
     }
 
