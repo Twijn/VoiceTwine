@@ -5,6 +5,7 @@ import TwineCommand from "./slashCommands/TwineCommand";
 import listeners from "./listeners";
 import rawSlashCommands from "./slashCommands";
 import registerCommands from "./registerCommands";
+import ReplyManager from "../lib/ReplyManager";
 
 const slashCommands = new Collection<string, TwineCommand>();
 for (const slashCommand of rawSlashCommands) {
@@ -31,7 +32,7 @@ client.on(Events.InteractionCreate, async interaction => {
     if (!command) return;
 
     try {
-        await command.execute(interaction);
+        await command.execute(interaction, new ReplyManager(interaction));
     } catch (error) {
         logger.error(error);
         await interaction.reply({
