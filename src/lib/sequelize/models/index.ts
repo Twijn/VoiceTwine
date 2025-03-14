@@ -2,10 +2,21 @@ import sequelize from "../database";
 import logger from "../../../logger";
 
 import {DiscordUser} from "./discorduser.model";
+
 import {DiscordGuild} from "./discordguild.model";
+import {DiscordChannel} from "./discordchannel.model";
 
 DiscordUser.hasMany(DiscordGuild, {foreignKey: "ownerId"});
 DiscordGuild.belongsTo(DiscordUser, {foreignKey: "ownerId"});
+
+DiscordUser.hasMany(DiscordChannel, {foreignKey: "ownerId"});
+DiscordChannel.belongsTo(DiscordUser, {foreignKey: "ownerId"});
+
+DiscordGuild.hasMany(DiscordChannel, {foreignKey: "guildId"});
+DiscordChannel.belongsTo(DiscordGuild, {foreignKey: "guildId"});
+
+DiscordChannel.hasMany(DiscordChannel, {foreignKey: "masterChannelId", as: "children"});
+DiscordChannel.belongsTo(DiscordChannel, {foreignKey: "masterChannelId", as: "parent"});
 
 export const initModels = async () => {
     try {

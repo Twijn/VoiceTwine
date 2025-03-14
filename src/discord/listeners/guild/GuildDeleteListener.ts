@@ -5,9 +5,9 @@ import logger from "../../../logger";
 
 import {DiscordGuild} from "../../../lib/sequelize/models/discordguild.model";
 
-export default class GuildDeleteListener implements Listener<Events.GuildUpdate> {
+export default class GuildDeleteListener implements Listener<Events.GuildDelete> {
 
-    event = Events.GuildUpdate;
+    event = Events.GuildDelete;
 
     async execute(guild: Guild): Promise<void> {
         const discordGuild = await DiscordGuild.findByPk(guild.id);

@@ -17,6 +17,7 @@ const discordToken = process.env.DISCORD_TOKEN;
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildVoiceStates,
     ],
 });
 

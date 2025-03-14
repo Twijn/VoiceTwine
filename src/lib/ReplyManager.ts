@@ -1,4 +1,4 @@
-import {EmbedBuilder, Guild, Message, MessageFlags} from "discord.js";
+import {EmbedBuilder, Guild, InteractionCallbackResponse, Message, MessageFlags} from "discord.js";
 
 const SUCCESS_COLOR = 0x32a852;
 const ERROR_COLOR = 0xab4b3c;
@@ -10,7 +10,7 @@ enum ReplyType {
     ERROR,
 }
 
-export default class ReplyManager<T extends {reply: (message: any) => Promise<Message>, editReply: (message: any) => Promise<Message>, guild: Guild}> {
+export default class ReplyManager<T extends {reply: (message: any) => Promise<Message>, editReply: (message: any) => Promise<Message>, deferred: boolean, deferReply: (options?: any) => Promise<InteractionCallbackResponse>, guild: Guild}> {
     private interaction: T;
 
     private repliedWith: ReplyType = null;
@@ -32,11 +32,15 @@ export default class ReplyManager<T extends {reply: (message: any) => Promise<Me
     }
 
     private reply(title: string, messageText: string, color: number): Promise<Message> {
-        return this.interaction.reply(this.createMessageData(title, messageText, color));
+        return this.interaction[this.interaction.deferred ? "editReply" : "reply"](this.createMessageData(title, messageText, color));
     }
 
     constructor(interaction: T) {
         this.interaction = interaction;
+    }
+
+    defer() {
+        return this.interaction.deferReply();
     }
 
     edit(messageText: string, title?: string): Promise<Message> {
