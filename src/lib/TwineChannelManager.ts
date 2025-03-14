@@ -140,7 +140,9 @@ class TwineChannelManager {
 
     async createChild(masterChannel: CombinedChannel, member: GuildMember) {
         const guild = masterChannel.discord.guild;
-        const [discordUser] = await DiscordUser.upsert(member.user);
+
+        // Ensure the user has been added to the database
+        await DiscordUser.upsert(member.user);
 
         const discordChannel = await guild.channels.create({
             name: `${member.displayName}'s Channel`.substring(0, 30),
@@ -162,6 +164,8 @@ class TwineChannelManager {
         }
 
         this.channels.set(databaseChannel.id, combinedChannel);
+
+        logger.info(`Create new child channel '${discordChannel.name}' in '${guild.name}'`);
 
         return combinedChannel;
     }
