@@ -4,25 +4,24 @@ import {
     Client,
     Collection,
     Guild, GuildMember,
-    User,
-    VoiceBasedChannel,
     VoiceChannel
 } from "discord.js";
-import logger from "../logger";
-import {DiscordChannel, DiscordChannelType} from "./sequelize/models/discordchannel.model";
-import {DiscordUser} from "./sequelize/models/discorduser.model";
+
+import {DiscordChannel, DiscordChannelType} from "../sequelize/models/discordchannel.model";
+import {DiscordUser} from "../sequelize/models/discorduser.model";
+
+import logger from "../../logger";
+
+import PanelManager from "./PanelManager";
+
+import ManagedChannel from "../objects/ManagedChannel";
 
 const DEFAULT_CATEGORY_NAME = "Voice-Twine Channels";
 const DEFAULT_CHANNEL_NAME = "+ Create New Channel";
 
-interface CombinedChannel {
-    database: DiscordChannel;
-    discord: VoiceBasedChannel|CategoryChannel;
-}
-
 class TwineChannelManager {
 
-    private channels = new Collection<string, CombinedChannel>();
+    private channels = new Collection<string, ManagedChannel>();
 
     async loadChannels(client: Client) {
         const databaseChannels = await DiscordChannel.findAll();
@@ -31,10 +30,7 @@ class TwineChannelManager {
             try {
                 const discordChannel = await client.channels.fetch(databaseChannel.id);
                 if (discordChannel.isVoiceBased() || discordChannel instanceof CategoryChannel) {
-                    this.channels.set(databaseChannel.id, {
-                        discord: discordChannel,
-                        database: databaseChannel,
-                    });
+                    this.channels.set(databaseChannel.id, new ManagedChannel(databaseChannel, discordChannel));
                 }
             } catch(error) {
                 logger.error(`Discord channel ${databaseChannel.id} no longer exists. Deleting from database!`);
@@ -48,27 +44,24 @@ class TwineChannelManager {
         return this.channels.get(id);
     }
 
-    async deleteChannel(id: string): Promise<CombinedChannel|null> {
+    async deleteChannel(id: string): Promise<ManagedChannel|null> {
         const channel = this.channels.get(id);
         if (channel) {
             if (channel.database.type === DiscordChannelType.MASTER_CHANNEL) {
                 const otherChannels = this.channels.filter(
                     x => x.database.masterChannelId === channel.database.id
                 );
-                otherChannels.forEach(channel => {
+                for (const channel of otherChannels.values()) {
                     if (channel.discord instanceof CategoryChannel &&
-                        channel.discord.children.cache.size > 0) return;
+                        channel.discord.children.cache.size > 0) continue;
 
                     if (channel.discord.deletable) {
-                        this.deleteChannel(channel.database.id).catch(e => logger.error(e));
+                        await channel.delete().catch(e => logger.error(e));
                     }
-                });
+                }
             }
 
-            await channel.database.destroy();
-            if (channel.discord.deletable) {
-                channel.discord.delete().catch(e => logger.error(e));
-            }
+            await channel.delete();
         }
         this.channels.delete(id);
         return channel;
@@ -116,15 +109,8 @@ class TwineChannelManager {
                 ownerId: null,
             });
 
-            const category: CombinedChannel = {
-                discord: discordCategory,
-                database: dbCategory,
-            };
-
-            const channel: CombinedChannel = {
-                discord: discordChannel,
-                database: dbChannel,
-            }
+            const category = new ManagedChannel(dbCategory, discordCategory);
+            const channel = new ManagedChannel(dbChannel, discordChannel);
 
             this.channels.set(category.database.id, category);
             this.channels.set(channel.database.id, channel);
@@ -138,7 +124,7 @@ class TwineChannelManager {
         }
     }
 
-    async createChild(masterChannel: CombinedChannel, member: GuildMember) {
+    async createChild(masterChannel: ManagedChannel, member: GuildMember) {
         const guild = masterChannel.discord.guild;
 
         // Ensure the user has been added to the database
@@ -158,10 +144,12 @@ class TwineChannelManager {
             ownerId: member.id,
         });
 
-        const combinedChannel: CombinedChannel = {
-            discord: discordChannel,
-            database: databaseChannel,
-        }
+        const combinedChannel = new ManagedChannel(databaseChannel, discordChannel);
+
+        discordChannel.send({
+            ...PanelManager.constructPanel(combinedChannel),
+            content: `<@${member.id}>`,
+        });
 
         this.channels.set(databaseChannel.id, combinedChannel);
 

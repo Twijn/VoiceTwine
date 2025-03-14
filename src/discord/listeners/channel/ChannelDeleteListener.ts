@@ -2,7 +2,7 @@ import {DMChannel, Events, NonThreadGuildBasedChannel} from "discord.js";
 
 import Listener from "../Listener";
 import logger from "../../../logger";
-import TwineChannelManager from "../../../lib/TwineChannelManager";
+import TwineChannelManager from "../../../lib/managers/TwineChannelManager";
 
 export default class ChannelDeleteListener implements Listener<Events.ChannelDelete> {
 

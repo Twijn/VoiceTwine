@@ -1,8 +1,8 @@
 import {EmbedBuilder, Guild, InteractionCallbackResponse, Message, MessageFlags} from "discord.js";
 
-const SUCCESS_COLOR = 0x32a852;
-const ERROR_COLOR = 0xab4b3c;
-const THEME_COLOR = 0x819ec9;
+export const SUCCESS_COLOR = 0x32a852;
+export const ERROR_COLOR = 0xab4b3c;
+export const THEME_COLOR = 0x819ec9;
 
 enum ReplyType {
     INFO,
@@ -10,22 +10,26 @@ enum ReplyType {
     ERROR,
 }
 
+export function createBaseEmbed(color: number = THEME_COLOR) {
+    return new EmbedBuilder()
+        .setColor(color)
+        .setFooter({
+            iconURL: this.interaction.guild.iconURL(),
+            text: `${this.interaction.guild.name} • VoiceTwine`,
+        });
+}
+
 export default class ReplyManager<T extends {reply: (message: any) => Promise<Message>, editReply: (message: any) => Promise<Message>, deferred: boolean, deferReply: (options?: any) => Promise<InteractionCallbackResponse>, guild: Guild}> {
-    private interaction: T;
+    private readonly interaction: T;
 
     private repliedWith: ReplyType = null;
 
     private createMessageData(title: string, messageText: string, color: number) {
         return {
             embeds: [
-                new EmbedBuilder()
+                createBaseEmbed(color)
                     .setTitle(title)
-                    .setDescription(messageText)
-                    .setColor(color)
-                    .setFooter({
-                        iconURL: this.interaction.guild.iconURL(),
-                        text: `${this.interaction.guild.name} • VoiceTwine`,
-                    }),
+                    .setDescription(messageText),
             ],
             flags: MessageFlags.Ephemeral,
         };

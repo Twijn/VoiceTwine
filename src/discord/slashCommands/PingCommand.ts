@@ -1,6 +1,6 @@
 import TwineCommand from "./TwineCommand";
 import {ChatInputCommandInteraction, SlashCommandBuilder} from "discord.js";
-import ReplyManager from "../../lib/ReplyManager";
+import ReplyManager from "../../lib/managers/ReplyManager";
 
 export default class PingCommand implements TwineCommand {
 

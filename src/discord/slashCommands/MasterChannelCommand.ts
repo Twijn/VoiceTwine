@@ -1,7 +1,7 @@
 import TwineCommand from "./TwineCommand";
-import {ChatInputCommandInteraction, SlashCommandBuilder, ChannelType, ChannelManager} from "discord.js";
-import TwineChannelManager from "../../lib/TwineChannelManager";
-import ReplyManager from "../../lib/ReplyManager";
+import {ChatInputCommandInteraction, SlashCommandBuilder, ChannelType} from "discord.js";
+import TwineChannelManager from "../../lib/managers/TwineChannelManager";
+import ReplyManager from "../../lib/managers/ReplyManager";
 
 export default class MasterChannelCommand implements TwineCommand {
 

@@ -5,7 +5,7 @@ import TwineCommand from "./slashCommands/TwineCommand";
 import listeners from "./listeners";
 import rawSlashCommands from "./slashCommands";
 import registerCommands from "./registerCommands";
-import ReplyManager from "../lib/ReplyManager";
+import ReplyManager from "../lib/managers/ReplyManager";
 
 const slashCommands = new Collection<string, TwineCommand>();
 for (const slashCommand of rawSlashCommands) {
