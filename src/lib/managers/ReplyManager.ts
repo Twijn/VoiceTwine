@@ -10,12 +10,13 @@ enum ReplyType {
     ERROR,
 }
 
-export function createBaseEmbed(color: number = THEME_COLOR) {
+export function createBaseEmbed(guild: Guild = null, color: number = THEME_COLOR) {
+    const iconURL = guild?.iconURL() ?? null; // TODO: Add VoiceTwine Icon
     return new EmbedBuilder()
         .setColor(color)
         .setFooter({
-            iconURL: this.interaction.guild.iconURL(),
-            text: `${this.interaction.guild.name} • VoiceTwine`,
+            iconURL: iconURL,
+            text: `${guild?.name ? `${guild.name} • ` : ''}VoiceTwine`,
         });
 }
 
@@ -27,7 +28,7 @@ export default class ReplyManager<T extends {reply: (message: any) => Promise<Me
     private createMessageData(title: string, messageText: string, color: number) {
         return {
             embeds: [
-                createBaseEmbed(color)
+                createBaseEmbed(this.interaction.guild, color)
                     .setTitle(title)
                     .setDescription(messageText),
             ],

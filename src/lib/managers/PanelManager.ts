@@ -26,7 +26,7 @@ class PanelManager {
         }
 
         const embeds = [
-            createBaseEmbed()
+            createBaseEmbed(channel.discord.guild)
                 .setAuthor({name: `Panel • 🔊 ${channel.discord.name}`})
                 .setTitle("👋 Welcome to your new Twine channel!")
                 .setDescription(
