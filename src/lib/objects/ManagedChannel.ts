@@ -1,6 +1,5 @@
 import {DiscordChannel} from "../sequelize/models/discordchannel.model";
 import {CategoryChannel, VoiceBasedChannel} from "discord.js";
-import logger from "../../logger";
 
 
 export default class ManagedChannel {
@@ -19,7 +18,7 @@ export default class ManagedChannel {
     async delete() {
         await this.database.destroy();
         if (this.discord.deletable) {
-            await this.discord.delete().catch(e => logger.error(e));
+            await this.discord.delete().catch(e => {});
         }
     }
 }
