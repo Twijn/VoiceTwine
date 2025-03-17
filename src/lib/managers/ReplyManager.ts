@@ -1,4 +1,4 @@
-import {EmbedBuilder, Guild, InteractionCallbackResponse, Message, MessageFlags} from "discord.js";
+import {EmbedBuilder, Guild, InteractionCallbackResponse, InteractionResponse, Message, MessageFlags} from "discord.js";
 
 export const SUCCESS_COLOR = 0x32a852;
 export const ERROR_COLOR = 0xab4b3c;
@@ -20,7 +20,15 @@ export function createBaseEmbed(guild: Guild = null, color: number = THEME_COLOR
         });
 }
 
-export default class ReplyManager<T extends {reply: (message: any) => Promise<Message>, editReply: (message: any) => Promise<Message>, deferred: boolean, deferReply: (options?: any) => Promise<InteractionCallbackResponse>, guild: Guild}> {
+export type TwineInteraction = {
+    reply: (message: any) => Promise<Message>;
+    editReply: (message: any) => Promise<InteractionResponse|Message>;
+    deferred: boolean;
+    deferReply: (options?: any) => Promise<InteractionCallbackResponse>;
+    guild: Guild;
+}
+
+export default class ReplyManager<T extends TwineInteraction> {
     private readonly interaction: T;
 
     private repliedWith: ReplyType = null;
@@ -36,7 +44,7 @@ export default class ReplyManager<T extends {reply: (message: any) => Promise<Me
         };
     }
 
-    private reply(title: string, messageText: string, color: number): Promise<Message> {
+    private reply(title: string, messageText: string, color: number): Promise<InteractionResponse|Message> {
         return this.interaction[this.interaction.deferred ? "editReply" : "reply"](this.createMessageData(title, messageText, color));
     }
 
@@ -48,7 +56,7 @@ export default class ReplyManager<T extends {reply: (message: any) => Promise<Me
         return this.interaction.deferReply();
     }
 
-    edit(messageText: string, title?: string): Promise<Message> {
+    edit(messageText: string, title?: string): Promise<InteractionResponse|Message> {
         let color = THEME_COLOR;
 
         switch (this.repliedWith) {
@@ -69,17 +77,17 @@ export default class ReplyManager<T extends {reply: (message: any) => Promise<Me
         return this.interaction.editReply(this.createMessageData(title, messageText, color));
     }
 
-    success(messageText: string): Promise<Message> {
+    success(messageText: string): Promise<InteractionResponse|Message> {
         this.repliedWith = ReplyType.SUCCESS;
         return this.reply("Success!", messageText, SUCCESS_COLOR);
     }
 
-    error(messageText: string): Promise<Message> {
+    error(messageText: string): Promise<InteractionResponse|Message> {
         this.repliedWith = ReplyType.ERROR;
         return this.reply("Error", messageText, ERROR_COLOR);
     }
 
-    info(messageText: string, title?: string): Promise<Message> {
+    info(messageText: string, title?: string): Promise<InteractionResponse|Message> {
         if (!title) title = "Information";
         this.repliedWith = ReplyType.INFO;
         return this.reply(title, messageText, THEME_COLOR);

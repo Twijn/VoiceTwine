@@ -1,6 +1,6 @@
 import {Events, Guild} from "discord.js";
 
-import Listener from "../Listener";
+import Listener from "../../../lib/interfaces/Listener";
 import logger from "../../../logger";
 
 import {DiscordGuild} from "../../../lib/sequelize/models/discordguild.model";

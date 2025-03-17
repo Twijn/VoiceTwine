@@ -1,6 +1,6 @@
 import {Events, VoiceState} from "discord.js";
 
-import Listener from "../Listener";
+import Listener from "../../../lib/interfaces/Listener";
 import TwineChannelManager from "../../../lib/managers/TwineChannelManager";
 import {DiscordChannelType} from "../../../lib/sequelize/models/discordchannel.model";
 

@@ -5,6 +5,7 @@ import {DiscordUser} from "./discorduser.model";
 
 import {DiscordGuild} from "./discordguild.model";
 import {DiscordChannel} from "./discordchannel.model";
+import {DiscordMessage} from "./discordmessage.model";
 
 DiscordUser.hasMany(DiscordGuild, {foreignKey: "ownerId"});
 DiscordGuild.belongsTo(DiscordUser, {foreignKey: "ownerId"});
@@ -17,6 +18,9 @@ DiscordChannel.belongsTo(DiscordGuild, {foreignKey: "guildId"});
 
 DiscordChannel.hasMany(DiscordChannel, {foreignKey: "masterChannelId", as: "children"});
 DiscordChannel.belongsTo(DiscordChannel, {foreignKey: "masterChannelId", as: "parent"});
+
+DiscordChannel.hasMany(DiscordMessage, {foreignKey: "panelChannelId"});
+DiscordMessage.belongsTo(DiscordChannel, {foreignKey: "panelChannelId"});
 
 export const initModels = async () => {
     try {

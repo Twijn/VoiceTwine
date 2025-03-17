@@ -7,6 +7,9 @@ import rawSlashCommands from "./slashCommands";
 import registerCommands from "./registerCommands";
 import ReplyManager from "../lib/managers/ReplyManager";
 
+import buttonListener from "./listeners/button";
+import modalListener from "./listeners/modal";
+
 const slashCommands = new Collection<string, TwineCommand>();
 for (const slashCommand of rawSlashCommands) {
     slashCommands.set(slashCommand.data.name, slashCommand);
@@ -18,6 +21,7 @@ const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildMessages,
     ],
 });
 
@@ -27,19 +31,23 @@ for (const listener of listeners) {
 }
 
 client.on(Events.InteractionCreate, async interaction => {
-    if (!interaction.isChatInputCommand()) return;
+    if (interaction.isChatInputCommand()) {
+        const command = slashCommands.get(interaction.commandName);
+        if (!command) return;
 
-    const command = slashCommands.get(interaction.commandName);
-    if (!command) return;
-
-    try {
-        await command.execute(interaction, new ReplyManager(interaction));
-    } catch (error) {
-        logger.error(error);
-        await interaction.reply({
-            content: "An unexpected error occurred while executing this command! Try again later.",
-            ephemeral: true,
-        });
+        try {
+            await command.execute(interaction, new ReplyManager(interaction));
+        } catch (error) {
+            logger.error(error);
+            await interaction.reply({
+                content: "An unexpected error occurred while executing this command! Try again later.",
+                ephemeral: true,
+            });
+        }
+    } else if (interaction.isButton()) {
+        await buttonListener.execute(interaction);
+    } else if (interaction.isModalSubmit()) {
+        await modalListener.execute(interaction);
     }
 });
 

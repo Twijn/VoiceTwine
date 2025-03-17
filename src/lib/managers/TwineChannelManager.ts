@@ -1,11 +1,4 @@
-import {
-    CategoryChannel,
-    ChannelType,
-    Client,
-    Collection,
-    Guild, GuildMember,
-    VoiceChannel
-} from "discord.js";
+import {CategoryChannel, ChannelType, Client, Collection, Guild, GuildMember, VoiceChannel} from "discord.js";
 
 import {DiscordChannel, DiscordChannelType} from "../sequelize/models/discordchannel.model";
 import {DiscordUser} from "../sequelize/models/discorduser.model";
@@ -37,6 +30,16 @@ class TwineChannelManager {
                 databaseChannel.destroy().catch(e => logger.error(e));
             }
         }
+
+        const childChannels = this.channels.filter(x => x.type === DiscordChannelType.CHILD_CHANNEL);
+        for (const [,child] of childChannels) {
+            if (child.discord.members.size === 0) {
+                child.delete().then(() => {
+                    logger.debug(`Deleted child channel '${child.discord.name}' from '${child.discord.guild.name}' due to inactivity`);
+                }, e => logger.error(e));
+            }
+        }
+
         logger.info(`Loaded ${this.channels.size} channels!`);
     }
 
@@ -146,10 +149,7 @@ class TwineChannelManager {
 
         const combinedChannel = new ManagedChannel(databaseChannel, discordChannel);
 
-        discordChannel.send({
-            ...PanelManager.constructPanel(combinedChannel),
-            content: `<@${member.id}>`,
-        });
+        await PanelManager.constructPanel(combinedChannel);
 
         this.channels.set(databaseChannel.id, combinedChannel);
 

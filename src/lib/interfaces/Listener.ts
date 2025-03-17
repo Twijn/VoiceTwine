@@ -1,4 +1,4 @@
-import {ClientEvents, Interaction} from "discord.js";
+import {ClientEvents} from "discord.js";
 
 export enum ListenerType {
     ON = "on",
