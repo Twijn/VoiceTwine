@@ -11,7 +11,7 @@ enum ReplyType {
 }
 
 export function createBaseEmbed(guild: Guild = null, color: number = THEME_COLOR) {
-    const iconURL = guild?.iconURL() ?? null; // TODO: Add VoiceTwine Icon
+    const iconURL = guild?.iconURL() ?? "https://cdn.twijn.net/voicetwine/images/icon/1-64x64.png";
     return new EmbedBuilder()
         .setColor(color)
         .setFooter({

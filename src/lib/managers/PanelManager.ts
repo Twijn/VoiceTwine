@@ -86,7 +86,7 @@ class PanelManager {
 
         const embeds = [
             createBaseEmbed(channel.discord.guild)
-                .setAuthor({name: `Panel • 🔊 ${channel.discord.name}`})
+                .setAuthor({name: `Panel • 🔊 ${channel.discord.name}`, iconURL: "https://cdn.twijn.net/voicetwine/images/icon/1-64x64.png"})
                 .setTitle("👋 Welcome to your new Twine channel!")
                 .setDescription(
                     "Here, you can customize your channel however you'd like.\n" +
