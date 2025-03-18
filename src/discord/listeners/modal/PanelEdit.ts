@@ -62,7 +62,7 @@ export default class PanelEdit implements InteractionListener<ModalSubmitInterac
             videoQualityMode,
         });
 
-        await replyManager.success(`Update channel \`${channel.discord.name}\`!`).catch(e => logger.error(e));
+        await replyManager.success(`Updated channel \`${channel.discord.name}\`!`).catch(e => logger.error(e));
     }
 
 }
