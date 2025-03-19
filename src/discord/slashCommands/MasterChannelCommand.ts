@@ -1,5 +1,5 @@
 import TwineCommand from "./TwineCommand";
-import {ChatInputCommandInteraction, SlashCommandBuilder, ChannelType} from "discord.js";
+import {ChatInputCommandInteraction, SlashCommandBuilder, ChannelType, InteractionContextType, PermissionFlagsBits} from "discord.js";
 import TwineChannelManager from "../../lib/managers/TwineChannelManager";
 import ReplyManager from "../../lib/managers/ReplyManager";
 
@@ -24,7 +24,9 @@ export default class MasterChannelCommand implements TwineCommand {
                 .addChannelTypes(ChannelType.GuildCategory)
                 .setRequired(false)
             )
-        );
+        )
+        .setContexts(InteractionContextType.Guild)
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
 
     async execute(interaction: ChatInputCommandInteraction, replyManager: ReplyManager<ChatInputCommandInteraction>): Promise<void> {
         const subcommand = interaction.options.getSubcommand(true);
