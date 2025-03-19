@@ -1,4 +1,12 @@
-import {EmbedBuilder, Guild, InteractionCallbackResponse, InteractionResponse, Message, MessageFlags} from "discord.js";
+import {
+    EmbedBuilder,
+    Guild,
+    InteractionCallbackResponse,
+    InteractionDeferReplyOptions, InteractionEditReplyOptions, InteractionReplyOptions,
+    InteractionResponse,
+    Message,
+    MessageFlags, MessagePayload
+} from "discord.js";
 
 export const SUCCESS_COLOR = 0x32a852;
 export const ERROR_COLOR = 0xab4b3c;
@@ -21,10 +29,10 @@ export function createBaseEmbed(guild: Guild = null, color: number = THEME_COLOR
 }
 
 export type TwineInteraction = {
-    reply: (message: any) => Promise<Message>;
-    editReply: (message: any) => Promise<InteractionResponse|Message>;
+    reply: (message: InteractionReplyOptions) => Promise<Message>;
+    editReply: (message: string|MessagePayload|InteractionEditReplyOptions) => Promise<InteractionResponse|Message>;
     deferred: boolean;
-    deferReply: (options?: any) => Promise<InteractionCallbackResponse>;
+    deferReply: (options?: InteractionDeferReplyOptions) => Promise<InteractionCallbackResponse>;
     guild: Guild;
 }
 
@@ -45,7 +53,11 @@ export default class ReplyManager<T extends TwineInteraction> {
     }
 
     private reply(title: string, messageText: string, color: number): Promise<InteractionResponse|Message> {
-        return this.interaction[this.interaction.deferred ? "editReply" : "reply"](this.createMessageData(title, messageText, color));
+        if (this.interaction.deferred) {
+            return this.interaction.editReply(this.createMessageData(title, messageText, color) as InteractionEditReplyOptions);
+        } else {
+            return this.interaction.reply(this.createMessageData(title, messageText, color) as InteractionReplyOptions);
+        }
     }
 
     constructor(interaction: T) {
@@ -74,7 +86,7 @@ export default class ReplyManager<T extends TwineInteraction> {
                 }
         }
 
-        return this.interaction.editReply(this.createMessageData(title, messageText, color));
+        return this.interaction.editReply(this.createMessageData(title, messageText, color) as InteractionEditReplyOptions);
     }
 
     success(messageText: string): Promise<InteractionResponse|Message> {

@@ -10,7 +10,7 @@ const rest = new REST().setToken(process.env.DISCORD_TOKEN);
 export default async (commands: Collection<string, TwineCommand>) => {
     logger.info(`Started refreshing ${commands.size} application (/) commands`);
 
-    const data = await rest.put(
+    await rest.put(
         Routes.applicationCommands(process.env.DISCORD_CLIENT_ID), {
             body: [...commands.values()].map(x => x.data.toJSON()),
         }

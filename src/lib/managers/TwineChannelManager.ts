@@ -26,6 +26,7 @@ class TwineChannelManager {
                     this.channels.set(databaseChannel.id, new ManagedChannel(databaseChannel, discordChannel));
                 }
             } catch(error) {
+                logger.debug(error);
                 logger.error(`Discord channel ${databaseChannel.id} no longer exists. Deleting from database!`);
                 databaseChannel.destroy().catch(e => logger.error(e));
             }

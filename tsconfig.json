@@ -1,17 +1,19 @@
 {
   "compilerOptions": {
     "lib": [
-      "es2020",
+      "es2020"
     ],
     "typeRoots": ["./types", "node_modules/@types"],
     "module": "commonjs",
     "esModuleInterop": true,
     "target": "es2020",
     "moduleResolution": "node",
-    "sourceMap": true,
+    "sourceMap": false,
     "noImplicitAny": true,
+    "declaration": true,
+    "removeComments": true,
+    "skipLibCheck": true,
     "rootDir": "src",
     "outDir": "dist"
   },
-  "lib": ["es2015"]
 }
