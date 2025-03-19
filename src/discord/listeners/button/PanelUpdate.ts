@@ -20,7 +20,7 @@ export default class PanelUpdate implements InteractionListener<ButtonInteractio
         const channel = panel.getOperatingChannel();
 
         if (!channel || channel.database.ownerId !== interaction.user.id) {
-            await replyManager.error(`Only the owner can edit the channel '${channel.discord.name}'!`);
+            await replyManager.error(`Only the owner can edit the channel \`${channel.name}\`!`);
             return;
         }
 

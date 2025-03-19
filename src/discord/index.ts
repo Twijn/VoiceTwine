@@ -9,6 +9,7 @@ import ReplyManager from "../lib/managers/ReplyManager";
 
 import buttonListener from "./listeners/button";
 import modalListener from "./listeners/modal";
+import selectMenuListener from "./listeners/selectMenu";
 
 const slashCommands = new Collection<string, TwineCommand>();
 for (const slashCommand of rawSlashCommands) {
@@ -48,6 +49,8 @@ client.on(Events.InteractionCreate, async interaction => {
         await buttonListener.execute(interaction);
     } else if (interaction.isModalSubmit()) {
         await modalListener.execute(interaction);
+    } else if (interaction.isAnySelectMenu()) {
+        await selectMenuListener.execute(interaction);
     }
 });
 

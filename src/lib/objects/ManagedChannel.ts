@@ -4,12 +4,26 @@ import {
     CategoryChannel,
     GuildChannelEditOptions,
     ModalBuilder,
+    OverwriteResolvable,
+    PermissionsBitField,
     TextInputBuilder,
-    VoiceBasedChannel,
     TextInputStyle,
+    VoiceBasedChannel,
 } from "discord.js";
 import PanelManager from "../managers/PanelManager";
 
+export const ownerOverwrites = [
+    PermissionsBitField.Flags.ViewChannel,
+    PermissionsBitField.Flags.Connect,
+    PermissionsBitField.Flags.ManageChannels,
+    PermissionsBitField.Flags.MoveMembers,
+    PermissionsBitField.Flags.MuteMembers,
+];
+
+export const memberOverwrites = [
+    PermissionsBitField.Flags.ViewChannel,
+    PermissionsBitField.Flags.Connect,
+];
 
 export default class ManagedChannel {
     database: DiscordChannel;
@@ -26,6 +40,14 @@ export default class ManagedChannel {
 
     public get type() {
         return this.database.type;
+    }
+
+    public get status() {
+        return this.database.status;
+    }
+
+    public get name() {
+        return this.discord.name;
     }
 
     editModal(): ModalBuilder {
@@ -94,12 +116,66 @@ export default class ManagedChannel {
     async updateStatus(status: DiscordChannelStatus): Promise<void> {
         this.database.status = status;
         await this.database.save();
+        await this.updatePermissions();
         await this.updatePanels();
     }
 
     async edit(options: GuildChannelEditOptions) {
         await this.discord.edit(options);
         return this;
+    }
+
+    private getOverwrites(): OverwriteResolvable[] {
+        let overwrites: OverwriteResolvable[] = [
+            {
+                id: this.database.ownerId,
+                allow: ownerOverwrites,
+            },
+        ];
+
+        if (this.status !== DiscordChannelStatus.PUBLIC) {
+            const deny = [
+                PermissionsBitField.Flags.Connect,
+            ];
+
+            if (this.status === DiscordChannelStatus.HIDDEN) {
+                deny.push(PermissionsBitField.Flags.ViewChannel);
+            }
+
+            overwrites = [
+                {
+                    id: this.discord.guildId,
+                    deny,
+                },
+                ...overwrites,
+            ]
+        }
+
+        if (this.database.members) {
+            overwrites = [
+                ...overwrites,
+                ...this.database.members
+                    .split(",")
+                    .map(id => {
+                        return {
+                            id,
+                            allow: memberOverwrites,
+                        };
+                    })
+            ];
+        }
+
+        return overwrites;
+    }
+
+    async updatePermissions(): Promise<void> {
+        await this.discord.permissionOverwrites.set(this.getOverwrites());
+    }
+
+    async editAllowedMembers(members: string[]) {
+        this.database.members = members.join(",");
+        await this.database.save();
+        await this.updatePermissions();
     }
 
     async delete() {

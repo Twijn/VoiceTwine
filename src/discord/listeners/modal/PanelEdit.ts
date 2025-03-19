@@ -21,7 +21,7 @@ export default class PanelEdit implements InteractionListener<ModalSubmitInterac
         const channel = panel.getOperatingChannel();
 
         if (!channel || channel.database.ownerId !== interaction.user.id) {
-            await replyManager.error(`Only the owner can edit the channel '${channel.discord.name}'!`).catch(e => logger.error(e));
+            await replyManager.error(`Only the owner can edit the channel \`${channel.name}\`!`).catch(e => logger.error(e));
             return;
         }
 

@@ -1,5 +1,6 @@
 import {
     ActionRowBuilder,
+    APISelectMenuDefaultValue,
     ButtonBuilder,
     ButtonStyle,
     cleanCodeBlockContent,
@@ -8,6 +9,7 @@ import {
     Collection, MentionableSelectMenuBuilder,
     MessageCreateOptions,
     MessageEditOptions,
+    SelectMenuDefaultValueType,
     TextChannel,
     VideoQualityMode,
     VoiceBasedChannel,
@@ -24,11 +26,11 @@ import logger from "../../logger";
 import {DiscordChannelStatus} from "../sequelize/models/discordchannel.model";
 
 const BLANK_FIELD =
-        {
-            name: " ",
-            value: " ",
-            inline: true,
-        };
+    {
+        name: " ",
+        value: " ",
+        inline: true,
+    };
 
 class PanelManager {
 
@@ -97,14 +99,17 @@ class PanelManager {
 
     constructMessageData(channel: ManagedChannel, isEdit: true): MessageEditOptions;
     constructMessageData(channel: ManagedChannel, isEdit: false): MessageCreateOptions;
-    constructMessageData(channel: ManagedChannel, isEdit: boolean): MessageCreateOptions|MessageEditOptions {
+    constructMessageData(channel: ManagedChannel, isEdit: boolean): MessageCreateOptions | MessageEditOptions {
         if (!channel.discord.isVoiceBased()) {
             throw "Channel must be voice based!";
         }
 
         const embeds = [
             createBaseEmbed(channel.discord.guild)
-                .setAuthor({name: `Panel • 🔊 ${channel.discord.name}`, iconURL: "https://cdn.twijn.net/voicetwine/images/icon/1-64x64.png"})
+                .setAuthor({
+                    name: `Panel • 🔊 ${channel.discord.name}`,
+                    iconURL: "https://cdn.twijn.net/voicetwine/images/icon/1-64x64.png"
+                })
                 .setTitle("👋 Welcome to your new Twine channel!")
                 .setDescription(
                     "Here, you can customize your channel however you'd like.\n" +
@@ -180,7 +185,7 @@ class PanelManager {
                 .setEmoji("👥"));
         }
 
-        const components: ActionRowBuilder<ButtonBuilder|MentionableSelectMenuBuilder>[] = [];
+        const components: ActionRowBuilder<ButtonBuilder | MentionableSelectMenuBuilder>[] = [];
 
         components.push(
             new ActionRowBuilder<ButtonBuilder>()
@@ -188,11 +193,27 @@ class PanelManager {
         );
 
         if (channel.database.status !== DiscordChannelStatus.PUBLIC) {
+            let defaultValues: APISelectMenuDefaultValue<SelectMenuDefaultValueType.User|SelectMenuDefaultValueType.Role>[] = [];
+
+            if (channel.database.members) {
+                const ids = channel.database.members.split(",");
+                for (const id of ids) {
+                    let type = SelectMenuDefaultValueType.User;
+                    if (channel.discord.guild.roles.cache.has(id)) {
+                        type = SelectMenuDefaultValueType.Role;
+                    }
+                    defaultValues.push({
+                        id, type,
+                    });
+                }
+            }
+
             const mentionableMenu = new MentionableSelectMenuBuilder()
                 .setCustomId("grant")
                 .setPlaceholder("Grant Access to Users or Roles")
                 .setMinValues(0)
-                .setMaxValues(25);
+                .setMaxValues(25)
+                .setDefaultValues(defaultValues);
 
             components.push(
                 new ActionRowBuilder<MentionableSelectMenuBuilder>()

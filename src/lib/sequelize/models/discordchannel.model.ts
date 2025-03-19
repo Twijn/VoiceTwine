@@ -21,7 +21,7 @@ export class DiscordChannel extends Model<InferAttributes<DiscordChannel>, Infer
     declare id: string;
     declare type: DiscordChannelType;
     declare status: DiscordChannelStatus;
-    declare permissions: string;
+    declare members: string;
     declare masterChannelId: string;
     declare guildId: string;
     declare ownerId: string;
@@ -43,7 +43,7 @@ DiscordChannel.init({
         defaultValue: DiscordChannelStatus.PUBLIC,
         allowNull: false,
     },
-    permissions: {
+    members: {
         type: DataTypes.STRING,
         allowNull: true,
     },

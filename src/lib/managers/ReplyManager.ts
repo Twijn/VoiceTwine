@@ -64,8 +64,14 @@ export default class ReplyManager<T extends TwineInteraction> {
         this.interaction = interaction;
     }
 
-    defer() {
-        return this.interaction.deferReply();
+    defer(ephemeral: boolean = true) {
+        if (ephemeral) {
+            return this.interaction.deferReply({
+                flags: MessageFlags.Ephemeral,
+            });
+        } else {
+            return this.interaction.deferReply();
+        }
     }
 
     edit(messageText: string, title?: string): Promise<InteractionResponse|Message> {

@@ -1,4 +1,12 @@
-import {CategoryChannel, ChannelType, Client, Collection, Guild, GuildMember, VoiceChannel} from "discord.js";
+import {
+    CategoryChannel,
+    ChannelType,
+    Client,
+    Collection,
+    Guild,
+    GuildMember,
+    VoiceChannel
+} from "discord.js";
 
 import {DiscordChannel, DiscordChannelType} from "../sequelize/models/discordchannel.model";
 import {DiscordUser} from "../sequelize/models/discorduser.model";
@@ -7,7 +15,8 @@ import logger from "../../logger";
 
 import PanelManager from "./PanelManager";
 
-import ManagedChannel from "../objects/ManagedChannel";
+import ManagedChannel, {ownerOverwrites} from "../objects/ManagedChannel";
+import {DiscordGuild} from "../sequelize/models/discordguild.model";
 
 const DEFAULT_CATEGORY_NAME = "Voice-Twine Channels";
 const DEFAULT_CHANNEL_NAME = "+ Create New Channel";
@@ -74,6 +83,10 @@ class TwineChannelManager {
     async createMaster(guild: Guild, channelName?: string|null, discordCategory?: CategoryChannel|null) {
         if (!channelName) channelName = DEFAULT_CHANNEL_NAME;
 
+        // upsert the owner user & Guild in case it doesn't exist.
+        await DiscordUser.upsert((await guild.fetchOwner()).user);
+        await DiscordGuild.upsert(guild);
+
         if (!discordCategory) {
             try {
                 discordCategory = await guild.channels.create({
@@ -138,6 +151,12 @@ class TwineChannelManager {
             name: `${member.displayName}'s Channel`.substring(0, 30),
             type: ChannelType.GuildVoice,
             parent: masterChannel.discord.parent,
+            permissionOverwrites: [
+                {
+                    id: member.id,
+                    allow: ownerOverwrites,
+                }
+            ],
         });
 
         const databaseChannel = await DiscordChannel.create({
