@@ -20,7 +20,7 @@ export default class VoiceListener implements Listener<Events.VoiceStateUpdate> 
         const oldChannel = TwineChannelManager.getChannel(oldState.channelId);
 
         if (oldChannel && oldChannel.database.type === DiscordChannelType.CHILD_CHANNEL &&
-            oldChannel.discord.members.size <= 1) {
+            oldChannel.discord.members.size === 0) {
             await TwineChannelManager.deleteChannel(oldChannel.database.id);
         }
     }
