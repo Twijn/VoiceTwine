@@ -11,9 +11,17 @@ export enum DiscordChannelType {
     CHILD_CHANNEL = "child_channel",
 }
 
+export enum DiscordChannelStatus {
+    PUBLIC = "public",
+    PRIVATE = "private",
+    HIDDEN = "hidden",
+}
+
 export class DiscordChannel extends Model<InferAttributes<DiscordChannel>, InferCreationAttributes<DiscordChannel>> {
     declare id: string;
     declare type: DiscordChannelType;
+    declare status: DiscordChannelStatus;
+    declare permissions: string;
     declare masterChannelId: string;
     declare guildId: string;
     declare ownerId: string;
@@ -28,6 +36,16 @@ DiscordChannel.init({
         type: DataTypes.ENUM,
         values: Object.values(DiscordChannelType),
         allowNull: false,
+    },
+    status: {
+        type: DataTypes.ENUM,
+        values: Object.values(DiscordChannelStatus),
+        defaultValue: DiscordChannelStatus.PUBLIC,
+        allowNull: false,
+    },
+    permissions: {
+        type: DataTypes.STRING,
+        allowNull: true,
     },
     masterChannelId: {
         type: DataTypes.STRING(20),

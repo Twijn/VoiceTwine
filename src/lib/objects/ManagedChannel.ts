@@ -1,4 +1,4 @@
-import {DiscordChannel, DiscordChannelType} from "../sequelize/models/discordchannel.model";
+import {DiscordChannel, DiscordChannelStatus, DiscordChannelType} from "../sequelize/models/discordchannel.model";
 import {
     ActionRowBuilder,
     CategoryChannel,
@@ -82,6 +82,19 @@ export default class ManagedChannel {
                             .setValue(PanelManager.formatVideoQuality(this.discord.videoQualityMode))
                     )
             );
+    }
+
+    async updatePanels(): Promise<void> {
+        const panels = PanelManager.getPanelsForChannel(this.id);
+        for (const [,panel] of panels) {
+            await panel.update();
+        }
+    }
+
+    async updateStatus(status: DiscordChannelStatus): Promise<void> {
+        this.database.status = status;
+        await this.database.save();
+        await this.updatePanels();
     }
 
     async edit(options: GuildChannelEditOptions) {

@@ -3,7 +3,7 @@ import {ButtonInteraction} from "discord.js";
 import PanelManager from "../../../lib/managers/PanelManager";
 import ReplyManager from "../../../lib/managers/ReplyManager";
 
-export default class PanelEdit implements InteractionListener<ButtonInteraction> {
+export default class PanelUpdate implements InteractionListener<ButtonInteraction> {
 
     matches(interaction: ButtonInteraction): boolean {
         return interaction.customId === "edit";

@@ -1,10 +1,16 @@
 import {
     ActionRowBuilder,
     ButtonBuilder,
-    cleanCodeBlockContent,
-    codeBlock,
     ButtonStyle,
-    Collection, VoiceBasedChannel, TextChannel, Client, MessageEditOptions, MessageCreateOptions, VideoQualityMode,
+    cleanCodeBlockContent,
+    Client,
+    codeBlock,
+    Collection, MentionableSelectMenuBuilder,
+    MessageCreateOptions,
+    MessageEditOptions,
+    TextChannel,
+    VideoQualityMode,
+    VoiceBasedChannel,
 } from "discord.js";
 
 import {createBaseEmbed} from "./ReplyManager";
@@ -15,6 +21,7 @@ import ManagedChannel from "../objects/ManagedChannel";
 import Panel from "../objects/Panel";
 import {Op} from "sequelize";
 import logger from "../../logger";
+import {DiscordChannelStatus} from "../sequelize/models/discordchannel.model";
 
 const BLANK_FIELD =
         {
@@ -77,6 +84,17 @@ class PanelManager {
         }
     }
 
+    formatStatus(status: DiscordChannelStatus): string {
+        switch (status) {
+            case DiscordChannelStatus.PUBLIC:
+                return "🌐 Public";
+            case DiscordChannelStatus.PRIVATE:
+                return "🔒 Private";
+            case DiscordChannelStatus.HIDDEN:
+                return "👥 Hidden";
+        }
+    }
+
     constructMessageData(channel: ManagedChannel, isEdit: true): MessageEditOptions;
     constructMessageData(channel: ManagedChannel, isEdit: false): MessageCreateOptions;
     constructMessageData(channel: ManagedChannel, isEdit: boolean): MessageCreateOptions|MessageEditOptions {
@@ -108,6 +126,17 @@ class PanelManager {
                     },
                     BLANK_FIELD,
                     {
+                        name: "👑 Channel Owner",
+                        value: `<@${channel.database.ownerId}>`,
+                        inline: true,
+                    },
+                    {
+                        name: "⭐ Channel Status",
+                        value: codeBlock(cleanCodeBlockContent(this.formatStatus(channel.database.status))),
+                        inline: true,
+                    },
+                    BLANK_FIELD,
+                    {
                         name: "🎵 Bitrate",
                         value: codeBlock(cleanCodeBlockContent(`${Math.floor(channel.discord.bitrate / 1000)} kbps`)),
                         inline: true,
@@ -121,21 +150,63 @@ class PanelManager {
                 ]),
         ];
 
-        const editChannel = new ButtonBuilder()
-            .setCustomId("edit")
-            .setLabel("Edit Channel")
-            .setStyle(ButtonStyle.Primary)
-            .setEmoji("✏️");
+        const firstRowButtons = [
+            new ButtonBuilder()
+                .setCustomId("edit")
+                .setLabel("Edit Channel")
+                .setStyle(ButtonStyle.Primary)
+                .setEmoji("✏️")
+        ];
 
-        const firstButtonRow = new ActionRowBuilder<ButtonBuilder>()
-            .addComponents(editChannel);
+        if (channel.database.status !== DiscordChannelStatus.PUBLIC) {
+            firstRowButtons.push(new ButtonBuilder()
+                .setCustomId("status-public")
+                .setLabel("Make Public")
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji("🌐"));
+        }
+        if (channel.database.status !== DiscordChannelStatus.PRIVATE) {
+            firstRowButtons.push(new ButtonBuilder()
+                .setCustomId("status-private")
+                .setLabel("Make Private")
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji("🔒"));
+        }
+        if (channel.database.status !== DiscordChannelStatus.HIDDEN) {
+            firstRowButtons.push(new ButtonBuilder()
+                .setCustomId("status-hidden")
+                .setLabel("Hide")
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji("👥"));
+        }
 
-        return {
-            embeds,
-            components: [
-                firstButtonRow,
-            ],
+        const components: ActionRowBuilder<ButtonBuilder|MentionableSelectMenuBuilder>[] = [];
+
+        components.push(
+            new ActionRowBuilder<ButtonBuilder>()
+                .addComponents(firstRowButtons)
+        );
+
+        if (channel.database.status !== DiscordChannelStatus.PUBLIC) {
+            const mentionableMenu = new MentionableSelectMenuBuilder()
+                .setCustomId("grant")
+                .setPlaceholder("Grant Access to Users or Roles")
+                .setMinValues(0)
+                .setMaxValues(25);
+
+            components.push(
+                new ActionRowBuilder<MentionableSelectMenuBuilder>()
+                    .addComponents(mentionableMenu)
+            );
+        }
+
+        const messageOptions = {
+            embeds, components,
         };
+
+        return isEdit ?
+            messageOptions as MessageEditOptions :
+            messageOptions as MessageCreateOptions;
     }
 
     async constructPanel(channel: ManagedChannel, sendTo?: VoiceBasedChannel|TextChannel): Promise<Panel> {
