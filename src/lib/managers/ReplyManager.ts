@@ -8,6 +8,8 @@ import {
     MessageFlags, MessagePayload
 } from "discord.js";
 
+const { version } = require("../../../package.json");
+
 export const SUCCESS_COLOR = 0x32a852;
 export const ERROR_COLOR = 0xab4b3c;
 export const THEME_COLOR = 0x819ec9;
@@ -24,7 +26,7 @@ export function createBaseEmbed(guild: Guild = null, color: number = THEME_COLOR
         .setColor(color)
         .setFooter({
             iconURL: iconURL,
-            text: `${guild?.name ? `${guild.name} • ` : ''}VoiceTwine`,
+            text: `${guild?.name ? `${guild.name} • ` : ''}VoiceTwine v${version}`,
         });
 }
 
