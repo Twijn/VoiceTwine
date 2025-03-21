@@ -18,7 +18,7 @@ export const getChannelFromPanel = (messageId: string, executorId: string = null
             executorId &&
             channel.database.ownerId !== executorId
         )) {
-        throw new Error(`Only the owner can edit the channel \`${channel?.name ?? "unknown channel"}\`!`);
+        throw new Error(`Only the owner can edit the channel ${channel?.url ?? "unknown channel"}!`);
     }
 
     return channel;
@@ -36,7 +36,7 @@ export const getChannelFromMember = (member: GuildMember, executorId: string = n
     }
 
     if (executorId && channel.database.ownerId !== executorId) {
-        throw new Error(`Only the owner can edit the channel \`${channel?.name}\`!`);
+        throw new Error(`Only the owner can edit the channel ${channel.url}!`);
     }
 
     return channel;
