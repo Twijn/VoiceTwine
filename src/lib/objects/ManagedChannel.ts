@@ -127,6 +127,10 @@ export default class ManagedChannel {
     }
 
     async setOwner(user: User): Promise<void> {
+        if (!this.discord.members.has(user.id)) {
+            throw new Error("The new owner must be in the channel to transfer!");
+        }
+
         await DiscordUser.upsert(user);
         this.database.ownerId = user.id;
         await this.database.save();

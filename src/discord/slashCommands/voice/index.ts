@@ -13,8 +13,7 @@ export default class VoiceCommand extends TwineCommandWithSubcommands {
         super(new SlashCommandBuilder()
             .setName("voice")
             .setDescription("Commands to manage voice channels")
-            .setContexts(InteractionContextType.Guild)
-            .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild), [
+            .setContexts(InteractionContextType.Guild), [
             new EditChannelSubcommand(),
             new GrantSubcommand(),
             new SetStatusSubcommand(),
