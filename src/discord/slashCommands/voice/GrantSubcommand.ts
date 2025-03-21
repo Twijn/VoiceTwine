@@ -3,7 +3,6 @@ import {ChatInputCommandInteraction, GuildMember, MessageFlags, SlashCommandSubc
 import ReplyManager, {createBaseEmbed} from "../../../lib/managers/ReplyManager";
 import {getChannelFromMember} from "../../../lib/utils";
 import ManagedChannel from "../../../lib/objects/ManagedChannel";
-import PanelManager from "../../../lib/managers/PanelManager";
 
 export default class GrantSubcommand implements TwineSubcommand {
     data = new SlashCommandSubcommandBuilder()
@@ -27,7 +26,7 @@ export default class GrantSubcommand implements TwineSubcommand {
                     .setDescription(`Currently updating grant permissions for ${channel.discord.url}`)
             ],
             components: [
-                PanelManager.constructGrantComponent(channel),
+                channel.constructGrantComponent(),
             ],
             flags: MessageFlags.Ephemeral,
         }).catch(() => {});

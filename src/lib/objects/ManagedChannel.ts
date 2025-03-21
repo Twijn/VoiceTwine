@@ -1,11 +1,11 @@
 import {DiscordChannel, DiscordChannelStatus, DiscordChannelType} from "../sequelize/models/discordchannel.model";
 import {
-    ActionRowBuilder,
-    CategoryChannel,
-    GuildChannelEditOptions,
+    ActionRowBuilder, APISelectMenuDefaultValue, ButtonBuilder, ButtonStyle,
+    CategoryChannel, cleanCodeBlockContent, codeBlock,
+    GuildChannelEditOptions, MentionableSelectMenuBuilder, MessageCreateOptions, MessageEditOptions,
     ModalBuilder,
     OverwriteResolvable,
-    PermissionsBitField,
+    PermissionsBitField, SelectMenuDefaultValueType,
     TextInputBuilder,
     TextInputStyle, User,
     VoiceBasedChannel,
@@ -13,6 +13,8 @@ import {
 import PanelManager from "../managers/PanelManager";
 import {DiscordUser} from "../sequelize/models/discorduser.model";
 import logger from "../../logger";
+import {createBaseEmbed} from "../managers/ReplyManager";
+import {BLANK_FIELD, formatStatus, formatVideoQuality} from "../utils";
 
 export const ownerOverwrites = [
     PermissionsBitField.Flags.ViewChannel,
@@ -99,6 +101,143 @@ export default class ManagedChannel {
         return overwrites;
     }
 
+    constructGrantComponent(): ActionRowBuilder<MentionableSelectMenuBuilder> {
+        let defaultValues: APISelectMenuDefaultValue<SelectMenuDefaultValueType.User|SelectMenuDefaultValueType.Role>[] = [];
+
+        if (this.database.members) {
+            const ids = this.database.members.split(",");
+            for (const id of ids) {
+                let type = SelectMenuDefaultValueType.User;
+                if (this.discord.guild.roles.cache.has(id)) {
+                    type = SelectMenuDefaultValueType.Role;
+                }
+                defaultValues.push({
+                    id, type,
+                });
+            }
+        }
+
+        const mentionableMenu = new MentionableSelectMenuBuilder()
+            .setCustomId("grant")
+            .setPlaceholder("Grant Access to Users or Roles")
+            .setMinValues(0)
+            .setMaxValues(25)
+            .setDefaultValues(defaultValues);
+
+        return new ActionRowBuilder<MentionableSelectMenuBuilder>()
+            .setComponents(mentionableMenu);
+    }
+
+    constructMessageData(isEdit: true): MessageEditOptions;
+    constructMessageData(isEdit: false): MessageCreateOptions;
+    constructMessageData(isEdit: boolean): MessageCreateOptions | MessageEditOptions {
+        if (!this.discord.isVoiceBased()) {
+            throw "Channel must be voice based!";
+        }
+
+        const embeds = [
+            createBaseEmbed(this.discord.guild)
+                .setAuthor({
+                    name: `VoiceTwine Panel • 🔊 ${this.name}`,
+                    iconURL: "https://cdn.twijn.net/voicetwine/images/icon/1-64x64.png"
+                })
+                .setTitle("👋 Welcome to your new Twine channel!")
+                .setDescription(
+                    "Here, you can customize your channel however you'd like.\n" +
+                    "### ⚙️ Your current settings:"
+                )
+                .addFields([
+                    {
+                        name: "🏷️ Channel Name",
+                        value: codeBlock(cleanCodeBlockContent(this.name)),
+                        inline: true,
+                    },
+                    {
+                        name: "👥 User Limit",
+                        value: codeBlock(cleanCodeBlockContent(
+                            this.discord.userLimit > 0 ? `${this.discord.userLimit} user${this.discord.userLimit !== 1 ? "s" : ""}` :
+                                `No user limit`
+                        )),
+                        inline: true,
+                    },
+                    BLANK_FIELD,
+                    {
+                        name: "👑 Channel Owner",
+                        value: `<@${this.database.ownerId}>`,
+                        inline: true,
+                    },
+                    {
+                        name: "⭐ Channel Status",
+                        value: codeBlock(cleanCodeBlockContent(formatStatus(this.database.status))),
+                        inline: true,
+                    },
+                    BLANK_FIELD,
+                    {
+                        name: "🎵 Bitrate",
+                        value: codeBlock(cleanCodeBlockContent(`${Math.floor(this.discord.bitrate / 1000)} kbps`)),
+                        inline: true,
+                    },
+                    {
+                        name: "📺 Video Quality",
+                        value: codeBlock(cleanCodeBlockContent(`${formatVideoQuality(this.discord.videoQualityMode)}`)),
+                        inline: true,
+                    },
+                    BLANK_FIELD,
+                ]),
+        ];
+
+        const firstRowButtons = [
+            new ButtonBuilder()
+                .setCustomId("edit")
+                .setLabel("Edit Channel")
+                .setStyle(ButtonStyle.Primary)
+                .setEmoji("✏️")
+        ];
+
+        if (this.database.status !== DiscordChannelStatus.PUBLIC) {
+            firstRowButtons.push(new ButtonBuilder()
+                .setCustomId("status-public")
+                .setLabel("Make Public")
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji("🌐"));
+        }
+        if (this.database.status !== DiscordChannelStatus.PRIVATE) {
+            firstRowButtons.push(new ButtonBuilder()
+                .setCustomId("status-private")
+                .setLabel("Make Private")
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji("🔒"));
+        }
+        if (this.database.status !== DiscordChannelStatus.HIDDEN) {
+            firstRowButtons.push(new ButtonBuilder()
+                .setCustomId("status-hidden")
+                .setLabel("Hide")
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji("👥"));
+        }
+
+        const components: ActionRowBuilder<ButtonBuilder | MentionableSelectMenuBuilder>[] = [];
+
+        components.push(
+            new ActionRowBuilder<ButtonBuilder>()
+                .addComponents(firstRowButtons)
+        );
+
+        if (this.database.status !== DiscordChannelStatus.PUBLIC) {
+            components.push(
+                this.constructGrantComponent()
+            );
+        }
+
+        const messageOptions = {
+            embeds, components,
+        };
+
+        return isEdit ?
+            messageOptions as MessageEditOptions :
+            messageOptions as MessageCreateOptions;
+    }
+
     getEditModal(): ModalBuilder {
         if (this.type !== DiscordChannelType.CHILD_CHANNEL || !this.discord.isVoiceBased()) {
             throw new Error("Edit modals can only be generated for child channels!");
@@ -150,7 +289,7 @@ export default class ManagedChannel {
                             .setMinLength(4)
                             .setMaxLength(4)
                             .setRequired(true)
-                            .setValue(PanelManager.formatVideoQuality(this.discord.videoQualityMode))
+                            .setValue(formatVideoQuality(this.discord.videoQualityMode))
                     )
             );
     }

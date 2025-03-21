@@ -1,4 +1,4 @@
-import {SlashCommandBuilder, InteractionContextType, PermissionFlagsBits} from "discord.js";
+import {SlashCommandBuilder, InteractionContextType} from "discord.js";
 
 import TwineCommandWithSubcommands from "../../../lib/interfaces/commands/TwineCommandWithSubcommands";
 

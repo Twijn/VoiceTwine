@@ -1,9 +1,16 @@
 import ManagedChannel from "./objects/ManagedChannel";
 import PanelManager from "./managers/PanelManager";
-import {GuildMember} from "discord.js";
+import {GuildMember, VideoQualityMode} from "discord.js";
 import TwineChannelManager from "./managers/TwineChannelManager";
-import {DiscordChannelType} from "./sequelize/models/discordchannel.model";
+import {DiscordChannelStatus, DiscordChannelType} from "./sequelize/models/discordchannel.model";
 import logger from "../logger";
+
+export const BLANK_FIELD =
+    {
+        name: " ",
+        value: " ",
+        inline: true,
+    };
 
 export const getChannelFromPanel = (messageId: string, executorId: string = null): ManagedChannel => {
     const panel = PanelManager.getPanel(messageId);
@@ -52,5 +59,25 @@ export const getChannelFromPanelOrMember = (messageId: string, member: GuildMemb
     } catch (error) {
         logger.debug(`Error retrieving channel from panel or member: ${error}`);
         return getChannelFromMember(member, executorId);
+    }
+}
+
+export const formatVideoQuality = (quality: VideoQualityMode): string => {
+    switch (quality) {
+        case VideoQualityMode.Full:
+            return "720p";
+        default:
+            return "Auto";
+    }
+}
+
+export const formatStatus = (status: DiscordChannelStatus): string => {
+    switch (status) {
+        case DiscordChannelStatus.PUBLIC:
+            return "🌐 Public";
+        case DiscordChannelStatus.PRIVATE:
+            return "🔒 Private";
+        case DiscordChannelStatus.HIDDEN:
+            return "👥 Hidden";
     }
 }
