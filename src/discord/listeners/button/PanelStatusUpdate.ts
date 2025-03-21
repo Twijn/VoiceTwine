@@ -42,7 +42,7 @@ export default class PanelStatusUpdate implements InteractionListener<ButtonInte
         }
 
         try {
-            await channel.updateStatus(newStatus);
+            await channel.setStatus(newStatus);
 
             await replyManager.success(`Successfully updated status to \`${newStatus}\` for channel ${channel.url}!`);
         } catch(e) {

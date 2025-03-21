@@ -57,7 +57,7 @@ export default class SetStatusSubcommand implements TwineSubcommand {
         }
 
         await replyManager.defer(true);
-        await channel.updateStatus(status);
+        await channel.setStatus(status);
         await replyManager.success(`Status for ${channel.url} was successfully updated to \`${channel.status}\`!`);
     }
 

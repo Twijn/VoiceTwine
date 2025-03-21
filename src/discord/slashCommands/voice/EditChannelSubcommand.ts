@@ -19,7 +19,7 @@ export default class EditChannelSubcommand implements TwineSubcommand {
             return;
         }
 
-        await interaction.showModal(channel.editModal());
+        await interaction.showModal(channel.getEditModal());
     }
 
 }

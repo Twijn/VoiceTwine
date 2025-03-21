@@ -20,7 +20,7 @@ export default class PanelUpdate implements InteractionListener<ButtonInteractio
             return;
         }
 
-        await interaction.showModal(channel.editModal());
+        await interaction.showModal(channel.getEditModal());
     }
 
 }

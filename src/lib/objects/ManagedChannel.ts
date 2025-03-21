@@ -56,7 +56,50 @@ export default class ManagedChannel {
         return this.discord.url;
     }
 
-    editModal(): ModalBuilder {
+    private getOverwrites(): OverwriteResolvable[] {
+        let overwrites: OverwriteResolvable[] = [
+            {
+                id: this.database.ownerId,
+                allow: ownerOverwrites,
+            },
+        ];
+
+        if (this.status !== DiscordChannelStatus.PUBLIC) {
+            const deny = [
+                PermissionsBitField.Flags.Connect,
+            ];
+
+            if (this.status === DiscordChannelStatus.HIDDEN) {
+                deny.push(PermissionsBitField.Flags.ViewChannel);
+            }
+
+            overwrites = [
+                {
+                    id: this.discord.guildId,
+                    deny,
+                },
+                ...overwrites,
+            ]
+        }
+
+        if (this.database.members) {
+            overwrites = [
+                ...overwrites,
+                ...this.database.members
+                    .split(",")
+                    .map(id => {
+                        return {
+                            id,
+                            allow: memberOverwrites,
+                        };
+                    })
+            ];
+        }
+
+        return overwrites;
+    }
+
+    getEditModal(): ModalBuilder {
         if (this.type !== DiscordChannelType.CHILD_CHANNEL || !this.discord.isVoiceBased()) {
             throw new Error("Edit modals can only be generated for child channels!");
         }
@@ -119,7 +162,11 @@ export default class ManagedChannel {
         }
     }
 
-    async updateStatus(status: DiscordChannelStatus): Promise<void> {
+    async updatePermissions(): Promise<void> {
+        await this.discord.permissionOverwrites.set(this.getOverwrites());
+    }
+
+    async setStatus(status: DiscordChannelStatus): Promise<void> {
         this.database.status = status;
         await this.database.save();
         await this.updatePermissions();
@@ -142,54 +189,7 @@ export default class ManagedChannel {
         return this;
     }
 
-    private getOverwrites(): OverwriteResolvable[] {
-        let overwrites: OverwriteResolvable[] = [
-            {
-                id: this.database.ownerId,
-                allow: ownerOverwrites,
-            },
-        ];
-
-        if (this.status !== DiscordChannelStatus.PUBLIC) {
-            const deny = [
-                PermissionsBitField.Flags.Connect,
-            ];
-
-            if (this.status === DiscordChannelStatus.HIDDEN) {
-                deny.push(PermissionsBitField.Flags.ViewChannel);
-            }
-
-            overwrites = [
-                {
-                    id: this.discord.guildId,
-                    deny,
-                },
-                ...overwrites,
-            ]
-        }
-
-        if (this.database.members) {
-            overwrites = [
-                ...overwrites,
-                ...this.database.members
-                    .split(",")
-                    .map(id => {
-                        return {
-                            id,
-                            allow: memberOverwrites,
-                        };
-                    })
-            ];
-        }
-
-        return overwrites;
-    }
-
-    async updatePermissions(): Promise<void> {
-        await this.discord.permissionOverwrites.set(this.getOverwrites());
-    }
-
-    async editAllowedMembers(members: string[]) {
+    async setAllowedMembers(members: string[]) {
         this.database.members = members.join(",");
         await this.database.save();
         await this.updatePermissions();

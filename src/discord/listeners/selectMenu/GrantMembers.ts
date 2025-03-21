@@ -23,7 +23,7 @@ export default class GrantMembers implements InteractionListener<MentionableSele
 
         await replyManager.defer();
         try {
-            await channel.editAllowedMembers(interaction.values);
+            await channel.setAllowedMembers(interaction.values);
             await replyManager.success(`Successfully edited granted members for channel ${channel.url}!`);
         } catch(error) {
             logger.error(error);
