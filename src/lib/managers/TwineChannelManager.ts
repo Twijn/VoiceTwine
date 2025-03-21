@@ -142,6 +142,7 @@ class TwineChannelManager {
     }
 
     async createChild(masterChannel: ManagedChannel, member: GuildMember) {
+        const start = Date.now();
         const guild = masterChannel.discord.guild;
 
         // Ensure the user has been added to the database
@@ -169,11 +170,11 @@ class TwineChannelManager {
 
         const combinedChannel = new ManagedChannel(databaseChannel, discordChannel);
 
-        await PanelManager.constructPanel(combinedChannel);
+        PanelManager.constructPanel(combinedChannel).catch(e => logger.error(e));
 
         this.channels.set(databaseChannel.id, combinedChannel);
 
-        logger.info(`Create new child channel '${discordChannel.name}' in '${guild.name}'`);
+        logger.info(`Create new child channel '${discordChannel.name}' in '${guild.name}' (Took ${Date.now() - start} ms)`);
 
         return combinedChannel;
     }
