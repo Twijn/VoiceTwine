@@ -16,7 +16,7 @@ export default class PanelStatusUpdate implements InteractionListener<ButtonInte
         let channel: ManagedChannel;
 
         try {
-            channel = getChannelFromPanel(interaction.channelId, interaction.user.id);
+            channel = getChannelFromPanel(interaction.message.id, interaction.user.id);
         } catch (e) {
             await replyManager.error(e.message);
             return;
@@ -44,10 +44,10 @@ export default class PanelStatusUpdate implements InteractionListener<ButtonInte
         try {
             await channel.updateStatus(newStatus);
 
-            await replyManager.success(`Successfully updated status to \`${newStatus}\` for channel \`${channel.discord.name}\`!`);
+            await replyManager.success(`Successfully updated status to \`${newStatus}\` for channel ${channel.url}!`);
         } catch(e) {
             logger.error(e);
-            await replyManager.error(`Failed to update channel \`${channel.discord.name}\`!`);
+            await replyManager.error(`Failed to update channel ${channel.url}!`);
         }
     }
 

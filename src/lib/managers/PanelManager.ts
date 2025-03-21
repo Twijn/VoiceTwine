@@ -97,6 +97,33 @@ class PanelManager {
         }
     }
 
+    constructGrantComponent(channel: ManagedChannel): ActionRowBuilder<MentionableSelectMenuBuilder> {
+        let defaultValues: APISelectMenuDefaultValue<SelectMenuDefaultValueType.User|SelectMenuDefaultValueType.Role>[] = [];
+
+        if (channel.database.members) {
+            const ids = channel.database.members.split(",");
+            for (const id of ids) {
+                let type = SelectMenuDefaultValueType.User;
+                if (channel.discord.guild.roles.cache.has(id)) {
+                    type = SelectMenuDefaultValueType.Role;
+                }
+                defaultValues.push({
+                    id, type,
+                });
+            }
+        }
+
+        const mentionableMenu = new MentionableSelectMenuBuilder()
+            .setCustomId("grant")
+            .setPlaceholder("Grant Access to Users or Roles")
+            .setMinValues(0)
+            .setMaxValues(25)
+            .setDefaultValues(defaultValues);
+
+        return new ActionRowBuilder<MentionableSelectMenuBuilder>()
+            .setComponents(mentionableMenu);
+    }
+
     constructMessageData(channel: ManagedChannel, isEdit: true): MessageEditOptions;
     constructMessageData(channel: ManagedChannel, isEdit: false): MessageCreateOptions;
     constructMessageData(channel: ManagedChannel, isEdit: boolean): MessageCreateOptions | MessageEditOptions {
@@ -107,7 +134,7 @@ class PanelManager {
         const embeds = [
             createBaseEmbed(channel.discord.guild)
                 .setAuthor({
-                    name: `Panel • 🔊 ${channel.discord.name}`,
+                    name: `VoiceTwine Panel • 🔊 ${channel.name}`,
                     iconURL: "https://cdn.twijn.net/voicetwine/images/icon/1-64x64.png"
                 })
                 .setTitle("👋 Welcome to your new Twine channel!")
@@ -118,7 +145,7 @@ class PanelManager {
                 .addFields([
                     {
                         name: "🏷️ Channel Name",
-                        value: codeBlock(cleanCodeBlockContent(channel.discord.name)),
+                        value: codeBlock(cleanCodeBlockContent(channel.name)),
                         inline: true,
                     },
                     {
@@ -193,31 +220,8 @@ class PanelManager {
         );
 
         if (channel.database.status !== DiscordChannelStatus.PUBLIC) {
-            let defaultValues: APISelectMenuDefaultValue<SelectMenuDefaultValueType.User|SelectMenuDefaultValueType.Role>[] = [];
-
-            if (channel.database.members) {
-                const ids = channel.database.members.split(",");
-                for (const id of ids) {
-                    let type = SelectMenuDefaultValueType.User;
-                    if (channel.discord.guild.roles.cache.has(id)) {
-                        type = SelectMenuDefaultValueType.Role;
-                    }
-                    defaultValues.push({
-                        id, type,
-                    });
-                }
-            }
-
-            const mentionableMenu = new MentionableSelectMenuBuilder()
-                .setCustomId("grant")
-                .setPlaceholder("Grant Access to Users or Roles")
-                .setMinValues(0)
-                .setMaxValues(25)
-                .setDefaultValues(defaultValues);
-
             components.push(
-                new ActionRowBuilder<MentionableSelectMenuBuilder>()
-                    .addComponents(mentionableMenu)
+                this.constructGrantComponent(channel)
             );
         }
 

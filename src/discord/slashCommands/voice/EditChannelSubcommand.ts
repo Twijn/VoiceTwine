@@ -1,0 +1,25 @@
+import TwineSubcommand from "../../../lib/interfaces/commands/TwineSubcommand";
+import {ChatInputCommandInteraction, GuildMember, SlashCommandSubcommandBuilder} from "discord.js";
+import ReplyManager from "../../../lib/managers/ReplyManager";
+import {getChannelFromMember} from "../../../lib/utils";
+import ManagedChannel from "../../../lib/objects/ManagedChannel";
+
+export default class EditChannelSubcommand implements TwineSubcommand {
+    data = new SlashCommandSubcommandBuilder()
+        .setName("edit-channel")
+        .setDescription("Edits the voice channel you're currently in");
+
+    async execute(interaction: ChatInputCommandInteraction, replyManager: ReplyManager<ChatInputCommandInteraction>): Promise<void> {
+        let channel: ManagedChannel;
+
+        try {
+            channel = getChannelFromMember(<GuildMember>interaction.member, interaction.user.id);
+        } catch (e) {
+            await replyManager.error(e.message);
+            return;
+        }
+
+        await interaction.showModal(channel.editModal());
+    }
+
+}

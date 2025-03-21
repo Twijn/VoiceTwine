@@ -1,11 +1,14 @@
 import TwineCommand from "../../lib/interfaces/commands/TwineCommand";
 
-import MasterChannelCommand from "./master-channel/MasterChannelCommand";
+import MasterChannel from "./master-channel";
+import Voice from "./voice";
 
 import PingCommand from "./PingCommand";
 
 const slashCommands: TwineCommand[] = [
-    new MasterChannelCommand(),
+    new MasterChannel(),
+    new Voice(),
+
     new PingCommand(),
 ]
 

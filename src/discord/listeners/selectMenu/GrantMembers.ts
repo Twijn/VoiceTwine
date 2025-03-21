@@ -1,8 +1,9 @@
 import InteractionListener from "../../../lib/interfaces/InteractionListener";
-import {MentionableSelectMenuInteraction} from "discord.js";
-import PanelManager from "../../../lib/managers/PanelManager";
+import {GuildMember, MentionableSelectMenuInteraction} from "discord.js";
 import ReplyManager from "../../../lib/managers/ReplyManager";
 import logger from "../../../logger";
+import ManagedChannel from "../../../lib/objects/ManagedChannel";
+import {getChannelFromPanelOrMember} from "../../../lib/utils";
 
 export default class GrantMembers implements InteractionListener<MentionableSelectMenuInteraction> {
 
@@ -11,24 +12,19 @@ export default class GrantMembers implements InteractionListener<MentionableSele
     }
 
     async execute(interaction: MentionableSelectMenuInteraction, replyManager: ReplyManager<MentionableSelectMenuInteraction>): Promise<void> {
-        const panel = PanelManager.getPanel(interaction.message.id);
+        let channel: ManagedChannel;
 
-        if (!panel) {
-            await replyManager.error("Unable to get voice channel from this panel!").catch(e => logger.error(e));
-            return;
-        }
-
-        const channel = panel.getOperatingChannel();
-
-        if (!channel || channel.database.ownerId !== interaction.user.id) {
-            await replyManager.error(`Only the owner can edit the channel \`${channel.name}\`!`).catch(e => logger.error(e));
+        try {
+            channel = getChannelFromPanelOrMember(interaction.message.id, <GuildMember>interaction.member, interaction.user.id);
+        } catch (e) {
+            await replyManager.error(e.message);
             return;
         }
 
         await replyManager.defer();
         try {
             await channel.editAllowedMembers(interaction.values);
-            await replyManager.success(`Successfully edited granted members for channel \`${channel.name}\`!`);
+            await replyManager.success(`Successfully edited granted members for channel ${channel.url}!`);
         } catch(error) {
             logger.error(error);
             await replyManager.error("Failed to update granted members!");

@@ -23,7 +23,7 @@ export const getChannelFromPanel = (messageId: string, executorId: string = null
     return channel;
 }
 
-export const getChannelFromMember = (member: GuildMember): ManagedChannel => {
+export const getChannelFromMember = (member: GuildMember, executorId: string = null): ManagedChannel => {
     if (!member?.voice?.channelId) {
         throw new Error("You aren't in a voice channel!");
     }
@@ -34,5 +34,21 @@ export const getChannelFromMember = (member: GuildMember): ManagedChannel => {
         throw new Error("The channel you're in isn't a VoiceTwine managed child channel!");
     }
 
+    if (executorId && channel.database.ownerId !== executorId) {
+        throw new Error(`Only the owner can edit the channel \`${channel?.name}\`!`);
+    }
+
     return channel;
+}
+
+export const getChannelFromPanelOrMember = (messageId: string, member: GuildMember, executorId?: string): ManagedChannel => {
+    if (!executorId) {
+        console.log(member);
+        executorId = member.id;
+    }
+    try {
+        return getChannelFromPanel(messageId, executorId);
+    } catch (error) {
+        return getChannelFromMember(member, executorId);
+    }
 }

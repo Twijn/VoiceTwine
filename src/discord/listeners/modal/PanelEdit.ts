@@ -1,9 +1,9 @@
 import InteractionListener from "../../../lib/interfaces/InteractionListener";
-import {ModalSubmitInteraction, VideoQualityMode} from "discord.js";
+import {GuildMember, ModalSubmitInteraction, VideoQualityMode} from "discord.js";
 import ReplyManager from "../../../lib/managers/ReplyManager";
 import logger from "../../../logger";
 import ManagedChannel from "../../../lib/objects/ManagedChannel";
-import {getChannelFromPanel} from "../../../lib/utils";
+import {getChannelFromPanelOrMember} from "../../../lib/utils";
 
 export default class PanelEdit implements InteractionListener<ModalSubmitInteraction> {
 
@@ -15,7 +15,7 @@ export default class PanelEdit implements InteractionListener<ModalSubmitInterac
         let channel: ManagedChannel;
 
         try {
-            channel = getChannelFromPanel(interaction.channelId, interaction.user.id);
+            channel = getChannelFromPanelOrMember(interaction?.message?.id, <GuildMember>interaction.member, interaction.user.id);
         } catch (e) {
             await replyManager.error(e.message);
             return;
@@ -58,7 +58,7 @@ export default class PanelEdit implements InteractionListener<ModalSubmitInterac
             videoQualityMode,
         });
 
-        await replyManager.success(`Updated channel \`${channel.discord.name}\`!`).catch(e => logger.error(e));
+        await replyManager.success(`Updated channel ${channel.url}!`).catch(e => logger.error(e));
     }
 
 }

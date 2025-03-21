@@ -14,7 +14,7 @@ export default class PanelUpdate implements InteractionListener<ButtonInteractio
         let channel: ManagedChannel;
 
         try {
-            channel = getChannelFromPanel(interaction.channelId, interaction.user.id);
+            channel = getChannelFromPanel(interaction.message.id, interaction.user.id);
         } catch (e) {
             await replyManager.error(e.message);
             return;

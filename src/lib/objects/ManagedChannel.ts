@@ -7,10 +7,12 @@ import {
     OverwriteResolvable,
     PermissionsBitField,
     TextInputBuilder,
-    TextInputStyle,
+    TextInputStyle, User,
     VoiceBasedChannel,
 } from "discord.js";
 import PanelManager from "../managers/PanelManager";
+import {DiscordUser} from "../sequelize/models/discorduser.model";
+import logger from "../../logger";
 
 export const ownerOverwrites = [
     PermissionsBitField.Flags.ViewChannel,
@@ -48,6 +50,10 @@ export default class ManagedChannel {
 
     public get name() {
         return this.discord.name;
+    }
+
+    public get url() {
+        return this.discord.url;
     }
 
     editModal(): ModalBuilder {
@@ -118,6 +124,13 @@ export default class ManagedChannel {
         await this.database.save();
         await this.updatePermissions();
         await this.updatePanels();
+    }
+
+    async setOwner(user: User): Promise<void> {
+        await DiscordUser.upsert(user);
+        this.database.ownerId = user.id;
+        await this.database.save();
+        this.updatePanels().catch(e => logger.error(e));
     }
 
     async edit(options: GuildChannelEditOptions) {
