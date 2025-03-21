@@ -3,6 +3,7 @@ import PanelManager from "./managers/PanelManager";
 import {GuildMember} from "discord.js";
 import TwineChannelManager from "./managers/TwineChannelManager";
 import {DiscordChannelType} from "./sequelize/models/discordchannel.model";
+import logger from "../logger";
 
 export const getChannelFromPanel = (messageId: string, executorId: string = null): ManagedChannel => {
     const panel = PanelManager.getPanel(messageId);
@@ -49,6 +50,7 @@ export const getChannelFromPanelOrMember = (messageId: string, member: GuildMemb
     try {
         return getChannelFromPanel(messageId, executorId);
     } catch (error) {
+        logger.debug(`Error retrieving channel from panel or member: ${error}`);
         return getChannelFromMember(member, executorId);
     }
 }

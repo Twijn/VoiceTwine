@@ -1,9 +1,8 @@
 import TwineSubcommand from "../../../lib/interfaces/commands/TwineSubcommand";
-import {ChatInputCommandInteraction, GuildMember, MessageFlags, SlashCommandSubcommandBuilder} from "discord.js";
-import ReplyManager, {createBaseEmbed} from "../../../lib/managers/ReplyManager";
+import {ChatInputCommandInteraction, GuildMember, SlashCommandSubcommandBuilder} from "discord.js";
+import ReplyManager from "../../../lib/managers/ReplyManager";
 import {getChannelFromMember} from "../../../lib/utils";
 import ManagedChannel from "../../../lib/objects/ManagedChannel";
-import PanelManager from "../../../lib/managers/PanelManager";
 
 export default class TransferOwnershipSubcommand implements TwineSubcommand {
     data = new SlashCommandSubcommandBuilder()
