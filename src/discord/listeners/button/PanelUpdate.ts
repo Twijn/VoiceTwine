@@ -1,7 +1,8 @@
 import InteractionListener from "../../../lib/interfaces/InteractionListener";
 import {ButtonInteraction} from "discord.js";
-import PanelManager from "../../../lib/managers/PanelManager";
 import ReplyManager from "../../../lib/managers/ReplyManager";
+import ManagedChannel from "../../../lib/objects/ManagedChannel";
+import {getChannelFromPanel} from "../../../lib/utils";
 
 export default class PanelUpdate implements InteractionListener<ButtonInteraction> {
 
@@ -10,17 +11,12 @@ export default class PanelUpdate implements InteractionListener<ButtonInteractio
     }
 
     async execute(interaction: ButtonInteraction, replyManager: ReplyManager<ButtonInteraction>): Promise<void> {
-        const panel = PanelManager.getPanel(interaction.message.id);
+        let channel: ManagedChannel;
 
-        if (!panel) {
-            await replyManager.error("Unable to get voice channel from this panel!");
-            return;
-        }
-
-        const channel = panel.getOperatingChannel();
-
-        if (!channel || channel.database.ownerId !== interaction.user.id) {
-            await replyManager.error(`Only the owner can edit the channel \`${channel.name}\`!`);
+        try {
+            channel = getChannelFromPanel(interaction.channelId, interaction.user.id);
+        } catch (e) {
+            await replyManager.error(e.message);
             return;
         }
 

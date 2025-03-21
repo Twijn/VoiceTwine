@@ -1,8 +1,9 @@
 import InteractionListener from "../../../lib/interfaces/InteractionListener";
 import {ModalSubmitInteraction, VideoQualityMode} from "discord.js";
-import PanelManager from "../../../lib/managers/PanelManager";
 import ReplyManager from "../../../lib/managers/ReplyManager";
 import logger from "../../../logger";
+import ManagedChannel from "../../../lib/objects/ManagedChannel";
+import {getChannelFromPanel} from "../../../lib/utils";
 
 export default class PanelEdit implements InteractionListener<ModalSubmitInteraction> {
 
@@ -11,17 +12,12 @@ export default class PanelEdit implements InteractionListener<ModalSubmitInterac
     }
 
     async execute(interaction: ModalSubmitInteraction, replyManager: ReplyManager<ModalSubmitInteraction>): Promise<void> {
-        const panel = PanelManager.getPanel(interaction.message.id);
+        let channel: ManagedChannel;
 
-        if (!panel) {
-            await replyManager.error("Unable to get voice channel from this panel!").catch(e => logger.error(e));
-            return;
-        }
-
-        const channel = panel.getOperatingChannel();
-
-        if (!channel || channel.database.ownerId !== interaction.user.id) {
-            await replyManager.error(`Only the owner can edit the channel \`${channel.name}\`!`).catch(e => logger.error(e));
+        try {
+            channel = getChannelFromPanel(interaction.channelId, interaction.user.id);
+        } catch (e) {
+            await replyManager.error(e.message);
             return;
         }
 
