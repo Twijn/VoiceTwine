@@ -25,9 +25,12 @@ export default class TransferOwnershipSubcommand implements TwineSubcommand {
         }
 
         const user = interaction.options.getUser("user", true);
-        await channel.setOwner(user);
-
-        await replyManager.success(`Successfully transferred ownership of ${channel.discord.url} to <@${user.id}>!`);
+        try {
+            await channel.setOwner(user);
+            await replyManager.success(`Successfully transferred ownership of ${channel.discord.url} to <@${user.id}>!`);
+        } catch(e) {
+            await replyManager.error(e.message);
+        }
     }
 
 }
