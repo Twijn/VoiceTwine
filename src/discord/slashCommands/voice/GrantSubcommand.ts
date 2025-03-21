@@ -3,6 +3,7 @@ import {ChatInputCommandInteraction, GuildMember, MessageFlags, SlashCommandSubc
 import ReplyManager, {createBaseEmbed} from "../../../lib/managers/ReplyManager";
 import {getChannelFromMember} from "../../../lib/utils";
 import ManagedChannel from "../../../lib/objects/ManagedChannel";
+import {DiscordChannelStatus} from "../../../lib/sequelize/models/discordchannel.model";
 
 export default class GrantSubcommand implements TwineSubcommand {
     data = new SlashCommandSubcommandBuilder()
@@ -16,6 +17,11 @@ export default class GrantSubcommand implements TwineSubcommand {
             channel = getChannelFromMember(<GuildMember>interaction.member, interaction.user.id);
         } catch (e) {
             await replyManager.error(e.message);
+            return;
+        }
+
+        if (channel.status === DiscordChannelStatus.PUBLIC) {
+            await replyManager.error("You can't change grant permissions on a public channel!");
             return;
         }
 
