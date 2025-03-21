@@ -1,6 +1,6 @@
-import TwineCommand from "./TwineCommand";
+import TwineCommand from "../../lib/interfaces/commands/TwineCommand";
 
-import MasterChannelCommand from "./MasterChannelCommand";
+import MasterChannelCommand from "./master-channel/MasterChannelCommand";
 
 import PingCommand from "./PingCommand";
 

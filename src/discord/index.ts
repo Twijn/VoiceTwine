@@ -1,7 +1,7 @@
 import {Client, Collection, Events, GatewayIntentBits} from "discord.js";
 import logger from "../logger";
 
-import TwineCommand from "./slashCommands/TwineCommand";
+import TwineCommand from "../lib/interfaces/commands/TwineCommand";
 import listeners from "./listeners";
 import rawSlashCommands from "./slashCommands";
 import registerCommands from "./registerCommands";
