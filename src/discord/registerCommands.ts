@@ -1,8 +1,7 @@
-import {REST, Routes} from "discord.js";
+import {REST, Routes, Collection} from "discord.js";
 
 import logger from "../logger";
 
-import {Collection} from "discord.js";
 import TwineCommand from "../lib/interfaces/commands/TwineCommand";
 
 const rest = new REST().setToken(process.env.DISCORD_TOKEN);

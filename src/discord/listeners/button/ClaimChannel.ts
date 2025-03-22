@@ -1,8 +1,10 @@
-import InteractionListener from "../../../lib/interfaces/InteractionListener";
 import {ButtonInteraction} from "discord.js";
-import ReplyManager from "../../../lib/managers/ReplyManager";
-import ManagedChannel from "../../../lib/objects/ManagedChannel";
+
 import {getChannelFromPanel} from "../../../lib/utils";
+
+import ReplyManager from "../../../lib/managers/ReplyManager";
+import InteractionListener from "../../../lib/interfaces/InteractionListener";
+import ManagedChannel from "../../../lib/objects/ManagedChannel";
 
 export default class ClaimChannel implements InteractionListener<ButtonInteraction> {
 

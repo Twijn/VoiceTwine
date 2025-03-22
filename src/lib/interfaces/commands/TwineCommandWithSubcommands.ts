@@ -1,7 +1,7 @@
 import {ChatInputCommandInteraction, SlashCommandSubcommandsOnlyBuilder} from "discord.js";
 
-import TwineCommand from "./TwineCommand";
 import ReplyManager from "../../managers/ReplyManager";
+import TwineCommand from "./TwineCommand";
 import TwineSubcommand from "./TwineSubcommand";
 
 export default class TwineCommandWithSubcommands implements TwineCommand {

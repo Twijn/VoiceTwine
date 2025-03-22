@@ -1,10 +1,12 @@
 import {Events, GuildMember, VoiceState} from "discord.js";
 
-import Listener from "../../../lib/interfaces/Listener";
-import TwineChannelManager from "../../../lib/managers/TwineChannelManager";
-import {DiscordChannelType} from "../../../lib/sequelize/models/discordchannel.model";
 import logger from "../../../logger";
+
+import {DiscordChannelType} from "../../../lib/sequelize/models/discordchannel.model";
+
+import TwineChannelManager from "../../../lib/managers/TwineChannelManager";
 import {createBaseEmbed, ERROR_COLOR} from "../../../lib/managers/ReplyManager";
+import Listener from "../../../lib/interfaces/Listener";
 import ManagedChannel from "../../../lib/objects/ManagedChannel";
 
 const ACTIVITY_TRACKING_TIME = 60 * 1000; // 60 seconds

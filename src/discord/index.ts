@@ -1,12 +1,14 @@
 import {Client, Collection, Events, GatewayIntentBits} from "discord.js";
+
 import logger from "../logger";
 
+import ReplyManager from "../lib/managers/ReplyManager";
 import TwineCommand from "../lib/interfaces/commands/TwineCommand";
-import listeners from "./listeners";
+
 import rawSlashCommands from "./slashCommands";
 import registerCommands from "./registerCommands";
-import ReplyManager from "../lib/managers/ReplyManager";
 
+import listeners from "./listeners";
 import buttonListener from "./listeners/button";
 import modalListener from "./listeners/modal";
 import selectMenuListener from "./listeners/selectMenu";

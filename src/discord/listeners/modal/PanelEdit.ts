@@ -1,9 +1,11 @@
-import InteractionListener from "../../../lib/interfaces/InteractionListener";
 import {GuildMember, ModalSubmitInteraction, VideoQualityMode} from "discord.js";
-import ReplyManager from "../../../lib/managers/ReplyManager";
+
 import logger from "../../../logger";
-import ManagedChannel from "../../../lib/objects/ManagedChannel";
 import {getChannelFromPanelOrMember} from "../../../lib/utils";
+
+import ReplyManager from "../../../lib/managers/ReplyManager";
+import InteractionListener from "../../../lib/interfaces/InteractionListener";
+import ManagedChannel from "../../../lib/objects/ManagedChannel";
 
 export default class PanelEdit implements InteractionListener<ModalSubmitInteraction> {
 

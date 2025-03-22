@@ -1,9 +1,12 @@
-import TwineSubcommand from "../../../lib/interfaces/commands/TwineSubcommand";
 import {ChatInputCommandInteraction, GuildMember, MessageFlags, SlashCommandSubcommandBuilder} from "discord.js";
-import ReplyManager, {createBaseEmbed} from "../../../lib/managers/ReplyManager";
+
 import {getChannelFromMember} from "../../../lib/utils";
-import ManagedChannel from "../../../lib/objects/ManagedChannel";
+
 import {DiscordChannelStatus} from "../../../lib/sequelize/models/discordchannel.model";
+
+import ReplyManager, {createBaseEmbed} from "../../../lib/managers/ReplyManager";
+import TwineSubcommand from "../../../lib/interfaces/commands/TwineSubcommand";
+import ManagedChannel from "../../../lib/objects/ManagedChannel";
 
 export default class GrantSubcommand implements TwineSubcommand {
     data = new SlashCommandSubcommandBuilder()

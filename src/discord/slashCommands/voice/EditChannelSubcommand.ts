@@ -1,7 +1,9 @@
-import TwineSubcommand from "../../../lib/interfaces/commands/TwineSubcommand";
 import {ChatInputCommandInteraction, GuildMember, SlashCommandSubcommandBuilder} from "discord.js";
-import ReplyManager from "../../../lib/managers/ReplyManager";
+
 import {getChannelFromMember} from "../../../lib/utils";
+
+import ReplyManager from "../../../lib/managers/ReplyManager";
+import TwineSubcommand from "../../../lib/interfaces/commands/TwineSubcommand";
 import ManagedChannel from "../../../lib/objects/ManagedChannel";
 
 export default class EditChannelSubcommand implements TwineSubcommand {

@@ -1,10 +1,13 @@
-import InteractionListener from "../../../lib/interfaces/InteractionListener";
 import {ButtonInteraction} from "discord.js";
-import ReplyManager from "../../../lib/managers/ReplyManager";
-import {DiscordChannelStatus} from "../../../lib/sequelize/models/discordchannel.model";
+
 import logger from "../../../logger";
-import ManagedChannel from "../../../lib/objects/ManagedChannel";
 import {getChannelFromPanel} from "../../../lib/utils";
+
+import {DiscordChannelStatus} from "../../../lib/sequelize/models/discordchannel.model";
+
+import ReplyManager from "../../../lib/managers/ReplyManager";
+import InteractionListener from "../../../lib/interfaces/InteractionListener";
+import ManagedChannel from "../../../lib/objects/ManagedChannel";
 
 export default class PanelStatusUpdate implements InteractionListener<ButtonInteraction> {
 
