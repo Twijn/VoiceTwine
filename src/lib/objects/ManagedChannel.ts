@@ -58,6 +58,10 @@ export default class ManagedChannel {
         return this.discord.url;
     }
 
+    public get ownerPresent() {
+        return this.discord.members.has(this.database.ownerId);
+    }
+
     private getOverwrites(): OverwriteResolvable[] {
         let overwrites: OverwriteResolvable[] = [
             {
@@ -89,6 +93,7 @@ export default class ManagedChannel {
                 ...overwrites,
                 ...this.database.members
                     .split(",")
+                    .filter(id => id !== this.database.ownerId)
                     .map(id => {
                         return {
                             id,
@@ -99,6 +104,33 @@ export default class ManagedChannel {
         }
 
         return overwrites;
+    }
+
+    constructClaimableMessageData(): MessageEditOptions {
+        const embeds = [
+            createBaseEmbed(this.discord.guild)
+                .setAuthor({
+                    name: `VoiceTwine Panel • 🔊 ${this.name}`,
+                    iconURL: "https://cdn.twijn.net/voicetwine/images/icon/1-64x64.png"
+                })
+                .setTitle("The owner has left this channel!")
+                .setDescription("Click the button below to claim this channel!"),
+        ];
+
+        const components = [
+            new ActionRowBuilder<ButtonBuilder>()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId("claim")
+                        .setLabel("Claim Channel")
+                        .setStyle(ButtonStyle.Success)
+                        .setEmoji("📌")
+                ),
+        ];
+
+        return {
+            embeds, components,
+        }
     }
 
     constructGrantComponent(): ActionRowBuilder<MentionableSelectMenuBuilder> {
@@ -133,6 +165,11 @@ export default class ManagedChannel {
     constructMessageData(isEdit: boolean): MessageCreateOptions | MessageEditOptions {
         if (!this.discord.isVoiceBased()) {
             throw "Channel must be voice based!";
+        }
+
+        if (!this.ownerPresent &&
+            Date.now() - this.database.createdAt.getTime() > 5000) {
+            return this.constructClaimableMessageData();
         }
 
         const embeds = [
@@ -317,9 +354,22 @@ export default class ManagedChannel {
             throw new Error("The new owner must be in the channel to transfer!");
         }
 
+        if (this.database.ownerId === user.id) {
+            throw new Error("You can't transfer ownership to the current owner!");
+        }
+
+        // Check if the old owner exists in granted members. If not, add them!
+        const members = this?.database?.members?.split(",") ?? [];
+        if (!members.includes(this.database.ownerId)) {
+            members.push(this.database.ownerId);
+            this.database.members = members.filter(x => x !== "").join(",");
+        }
+
         await DiscordUser.upsert(user);
         this.database.ownerId = user.id;
         await this.database.save();
+
+        this.updatePermissions().catch(e => logger.error(e));
         this.updatePanels().catch(e => logger.error(e));
     }
 
@@ -329,7 +379,8 @@ export default class ManagedChannel {
     }
 
     async setAllowedMembers(members: string[]) {
-        this.database.members = members.join(",");
+        logger.info(members);
+        this.database.members = members.length > 0 ? members.filter(x => x !== "").join(",") : null;
         await this.database.save();
         await this.updatePermissions();
     }

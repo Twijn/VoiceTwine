@@ -53,20 +53,28 @@ export default class VoiceListener implements Listener<Events.VoiceStateUpdate> 
     async execute(oldState: VoiceState, newState: VoiceState): Promise<void> {
         const newChannel = TwineChannelManager.getChannel(newState.channelId);
 
-        if (newChannel && newChannel.database.type === DiscordChannelType.MASTER_CHANNEL) {
-            if (createActivity.filter(x => x.userId === newState.member.id).length < ACTIVITY_LIMIT) {
-                createChildChannel(newChannel, newState).catch(e => logger.error(e));
-            } else {
-                sendJoinLimitMessage(newState.member).catch(e => logger.error(e));
-                newState.disconnect("Rate limit reached").catch(() => {});
+        if (newChannel) {
+            if (newChannel.database.type === DiscordChannelType.MASTER_CHANNEL) {
+                if (createActivity.filter(x => x.userId === newState.member.id).length < ACTIVITY_LIMIT) {
+                    createChildChannel(newChannel, newState).catch(e => logger.error(e));
+                } else {
+                    sendJoinLimitMessage(newState.member).catch(e => logger.error(e));
+                    newState.disconnect("Rate limit reached").catch(() => {});
+                }
+            } else if (newChannel.type === DiscordChannelType.CHILD_CHANNEL &&
+                newChannel.database.ownerId === newState.member.id) {
+                newChannel.updatePanels().catch(e => logger.error(e));
             }
         }
 
         const oldChannel = TwineChannelManager.getChannel(oldState.channelId);
 
-        if (oldChannel && oldChannel.database.type === DiscordChannelType.CHILD_CHANNEL &&
-            oldChannel.discord.members.size === 0) {
-            await TwineChannelManager.deleteChannel(oldChannel.database.id);
+        if (oldChannel && oldChannel.database.type === DiscordChannelType.CHILD_CHANNEL) {
+            if (oldChannel.discord.members.size === 0) {
+                await TwineChannelManager.deleteChannel(oldChannel.database.id);
+            } else if (!oldChannel.ownerPresent) {
+                oldChannel.updatePanels().catch(e => logger.error(e));
+            }
         }
     }
 

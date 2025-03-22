@@ -25,6 +25,9 @@ export class DiscordChannel extends Model<InferAttributes<DiscordChannel>, Infer
     declare masterChannelId: string;
     declare guildId: string;
     declare ownerId: string;
+
+    declare createdAt?: Date;
+    declare updatedAt?: Date;
 }
 
 DiscordChannel.init({
