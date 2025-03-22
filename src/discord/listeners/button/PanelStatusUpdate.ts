@@ -1,9 +1,13 @@
-import InteractionListener from "../../../lib/interfaces/InteractionListener";
 import {ButtonInteraction} from "discord.js";
-import PanelManager from "../../../lib/managers/PanelManager";
-import ReplyManager from "../../../lib/managers/ReplyManager";
-import {DiscordChannelStatus} from "../../../lib/sequelize/models/discordchannel.model";
+
 import logger from "../../../logger";
+import {getChannelFromPanel} from "../../../lib/utils";
+
+import {DiscordChannelStatus} from "../../../lib/sequelize/models/discordchannel.model";
+
+import ReplyManager from "../../../lib/managers/ReplyManager";
+import InteractionListener from "../../../lib/interfaces/InteractionListener";
+import ManagedChannel from "../../../lib/objects/ManagedChannel";
 
 export default class PanelStatusUpdate implements InteractionListener<ButtonInteraction> {
 
@@ -12,17 +16,12 @@ export default class PanelStatusUpdate implements InteractionListener<ButtonInte
     }
 
     async execute(interaction: ButtonInteraction, replyManager: ReplyManager<ButtonInteraction>): Promise<void> {
-        const panel = PanelManager.getPanel(interaction.message.id);
+        let channel: ManagedChannel;
 
-        if (!panel) {
-            await replyManager.error("Unable to get voice channel from this panel!");
-            return;
-        }
-
-        const channel = panel.getOperatingChannel();
-
-        if (!channel || channel.database.ownerId !== interaction.user.id) {
-            await replyManager.error(`Only the owner can edit the channel \`${channel.name}\`!`);
+        try {
+            channel = getChannelFromPanel(interaction.message.id, interaction.user.id);
+        } catch (e) {
+            await replyManager.error(e.message);
             return;
         }
 
@@ -46,12 +45,12 @@ export default class PanelStatusUpdate implements InteractionListener<ButtonInte
         }
 
         try {
-            await channel.updateStatus(newStatus);
+            await channel.setStatus(newStatus);
 
-            await replyManager.success(`Successfully updated status to \`${newStatus}\` for channel \`${channel.discord.name}\`!`);
+            await replyManager.success(`Successfully updated status to \`${newStatus}\` for channel ${channel.url}!`);
         } catch(e) {
             logger.error(e);
-            await replyManager.error(`Failed to update channel \`${channel.discord.name}\`!`);
+            await replyManager.error(`Failed to update channel ${channel.url}!`);
         }
     }
 

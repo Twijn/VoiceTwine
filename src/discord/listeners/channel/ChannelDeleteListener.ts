@@ -1,9 +1,10 @@
 import {DMChannel, Events, NonThreadGuildBasedChannel} from "discord.js";
 
-import Listener from "../../../lib/interfaces/Listener";
 import logger from "../../../logger";
+
 import TwineChannelManager from "../../../lib/managers/TwineChannelManager";
 import PanelManager from "../../../lib/managers/PanelManager";
+import Listener from "../../../lib/interfaces/Listener";
 
 export default class ChannelDeleteListener implements Listener<Events.ChannelDelete> {
 
@@ -19,7 +20,7 @@ export default class ChannelDeleteListener implements Listener<Events.ChannelDel
 
         TwineChannelManager.deleteChannel(discordChannel.id).then(channel => {
             if (channel) {
-                logger.info(`Channel '${channel.discord.name}' of type '${channel.database.type}' was deleted`);
+                logger.info(`Channel '${channel.name}' of type '${channel.database.type}' was deleted`);
             }
         }, error => {
             logger.error(`Error deleting channel ${discordChannel.name}: ${error}`);

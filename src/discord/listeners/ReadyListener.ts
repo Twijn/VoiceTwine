@@ -1,8 +1,10 @@
-import Listener, {ListenerType} from "../../lib/interfaces/Listener";
 import {Client, Events} from "discord.js";
+
 import logger from "../../logger";
+
 import TwineChannelManager from "../../lib/managers/TwineChannelManager";
 import PanelManager from "../../lib/managers/PanelManager";
+import Listener, {ListenerType} from "../../lib/interfaces/Listener";
 
 export default class ReadyListener implements Listener<Events.ClientReady> {
     type = ListenerType.ONCE;

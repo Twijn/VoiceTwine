@@ -6,7 +6,6 @@ import TwineChannelManager from "../managers/TwineChannelManager";
 
 import logger from "../../logger";
 import client from "../../discord";
-import PanelManager from "../managers/PanelManager";
 
 export default class Panel {
     database: DiscordMessage;
@@ -38,6 +37,6 @@ export default class Panel {
     async update() {
         const childChannel = this.getOperatingChannel();
 
-        await this.discord.edit(PanelManager.constructMessageData(childChannel, true));
+        await this.discord.edit(childChannel.constructMessageData(true));
     }
 }
