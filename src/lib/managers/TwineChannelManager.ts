@@ -17,6 +17,7 @@ import PanelManager from "./PanelManager";
 
 import ManagedChannel, {ownerOverwrites} from "../objects/ManagedChannel";
 import {DiscordGuild} from "../sequelize/models/discordguild.model";
+import { formatChannelName } from "../utils/channelNaming";
 
 const DEFAULT_CATEGORY_NAME = "Voice-Twine Channels";
 const DEFAULT_CHANNEL_NAME = "+ Create New Channel";
@@ -80,7 +81,7 @@ class TwineChannelManager {
         return channel;
     }
 
-    async createMaster(guild: Guild, channelName?: string|null, discordCategory?: CategoryChannel|null) {
+    async createMaster(guild: Guild, channelName?: string|null, discordCategory?: CategoryChannel|null, namingScheme?: string|null) {
         if (!channelName) channelName = DEFAULT_CHANNEL_NAME;
 
         // upsert the owner user & Guild in case it doesn't exist.
@@ -116,6 +117,7 @@ class TwineChannelManager {
                 type: DiscordChannelType.MASTER_CHANNEL,
                 guildId: guild.id,
                 ownerId: null,
+                namingScheme: namingScheme || null,
             });
 
             const dbCategory = await DiscordChannel.create({
@@ -152,8 +154,11 @@ class TwineChannelManager {
         const bitrate = masterChannel.discord.isVoiceBased() ? masterChannel.discord.bitrate : undefined;
         const videoQualityMode = masterChannel.discord.isVoiceBased() ? masterChannel.discord.videoQualityMode : undefined;
 
+        // Get formatted channel name using our utility function
+        const channelName = await formatChannelName(masterChannel, member);
+
         const discordChannel = await guild.channels.create({
-            name: `${member.displayName}'s Channel`.substring(0, 30),
+            name: channelName,
             type: ChannelType.GuildVoice,
             parent: masterChannel.discord.parent,
             bitrate: bitrate, // Set the bitrate to match the master channel

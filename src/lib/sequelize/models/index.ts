@@ -31,5 +31,6 @@ export const initModels = async () => {
         logger.info("Databases synchronized!");
     } catch(err) {
         logger.error("Error initializing models: " + err);
+        throw new Error(`Failed to connect to database: ${err}`);
     }
 }

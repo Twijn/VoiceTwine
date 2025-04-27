@@ -25,6 +25,7 @@ export class DiscordChannel extends Model<InferAttributes<DiscordChannel>, Infer
     declare masterChannelId: string;
     declare guildId: string;
     declare ownerId: string;
+    declare namingScheme: string;
 
     declare createdAt?: Date;
     declare updatedAt?: Date;
@@ -74,6 +75,10 @@ DiscordChannel.init({
             model: DiscordUser,
             key: "id",
         },
+        allowNull: true,
+    },
+    namingScheme: {
+        type: DataTypes.STRING(100),
         allowNull: true,
     }
 }, {

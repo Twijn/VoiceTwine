@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  voicetwine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+    environment:
+      # Application settings
+      NODE_ENV: production
+      LOG_LEVEL: info
+
+      # Database connection settings
+      MARIADB_HOST: mariadb
+      MARIADB_PORT: 3306
+      MARIADB_USER: twine
+      MARIADB_PASS: voicetwine_password
+      MARIADB_DB: voicetwine
+
+      # Discord settings - REPLACE THESE VALUES with your actual Discord credentials
+      DISCORD_CLIENT_ID: your_discord_client_id
+      DISCORD_CLIENT_SECRET: your_discord_client_secret
+      DISCORD_TOKEN: your_discord_token
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - voicetwine-network
+
+  mariadb:
+    image: mariadb:latest
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: voicetwine
+      MYSQL_USER: twine
+      MYSQL_PASSWORD: voicetwine_password
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    networks:
+      - voicetwine-network
+    ports:
+      # Expose MariaDB port for external access if needed
+      # Comment this out for production if you don't need external DB access
+      - "3306:3306"
+
+networks:
+  voicetwine-network:
+    driver: bridge
+
+volumes:
+  mariadb-data:
+    driver: local
