@@ -6,13 +6,19 @@ import logger from "./logger";
 import {initModels} from "./lib/sequelize/models";
 
 const startApp = async () => {
+    // Initialize database models first
     await initModels();
-    import("./discord");
+
+    // Only import and start Discord bot if database initialization was successful
+    await import("./discord");
 }
 
 startApp().then(() => {
-    logger.info("App started!");
+    logger.info("App started successfully!");
 }, error => {
+    logger.error("Application failed to start due to an error:");
     logger.error(error);
-    process.exitCode = 1;
+
+    // Exit immediately with error code
+    process.exit(1);
 })
