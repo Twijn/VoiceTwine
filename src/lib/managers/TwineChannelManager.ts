@@ -148,10 +148,16 @@ class TwineChannelManager {
         // Ensure the user has been added to the database
         await DiscordUser.upsert(member.user);
 
+        // Get the bitrate and video quality from the master channel if it's a voice channel
+        const bitrate = masterChannel.discord.isVoiceBased() ? masterChannel.discord.bitrate : undefined;
+        const videoQualityMode = masterChannel.discord.isVoiceBased() ? masterChannel.discord.videoQualityMode : undefined;
+
         const discordChannel = await guild.channels.create({
             name: `${member.displayName}'s Channel`.substring(0, 30),
             type: ChannelType.GuildVoice,
             parent: masterChannel.discord.parent,
+            bitrate: bitrate, // Set the bitrate to match the master channel
+            videoQualityMode: videoQualityMode, // Set the video quality to match the master channel
             permissionOverwrites: [
                 {
                     id: member.id,
