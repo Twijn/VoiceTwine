@@ -15,6 +15,13 @@ export default class CreateSubcommand implements TwineSubcommand {
             .setMaxLength(30)
             .setRequired(false)
         )
+        .addStringOption(option => option
+            .setName("naming-scheme")
+            .setDescription("Naming scheme for child channels. Use %N for channel number (e.g. '🕹️Gaming Channel | %N')")
+            .setMinLength(3)
+            .setMaxLength(100)
+            .setRequired(false)
+        )
         .addChannelOption(option => option
             .setName("category")
             .setDescription("The category to add the channel to. If unspecified it will create one")
@@ -24,10 +31,11 @@ export default class CreateSubcommand implements TwineSubcommand {
 
     async execute(interaction: ChatInputCommandInteraction, replyManager: ReplyManager<ChatInputCommandInteraction>): Promise<void> {
         let channelName = interaction.options.getString("channel-name", false);
+        let namingScheme = interaction.options.getString("naming-scheme", false);
         let category = interaction.options.getChannel("category", false, [ChannelType.GuildCategory]);
 
         try {
-            const {channel} = await TwineChannelManager.createMaster(interaction.guild, channelName, category);
+            const {channel} = await TwineChannelManager.createMaster(interaction.guild, channelName, category, namingScheme);
             await replyManager.success(`Successfully created master VoiceTwine channel at ${channel.discord.url}!\nTo use it, simply join the channel.`);
         } catch (error) {
             await replyManager.error(error);
