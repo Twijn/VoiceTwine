@@ -1,7 +1,7 @@
 import {GuildMember, ModalSubmitInteraction, VideoQualityMode} from "discord.js";
 
 import logger from "../../../logger";
-import {getChannelFromPanelOrMember} from "../../../lib/utils";
+import {getChannelFromPanelOrMember, getMaxBitrate} from "../../../lib/utils";
 
 import ReplyManager from "../../../lib/managers/ReplyManager";
 import InteractionListener from "../../../lib/interfaces/InteractionListener";
@@ -38,8 +38,9 @@ export default class PanelEdit implements InteractionListener<ModalSubmitInterac
             return;
         }
 
-        if (isNaN(bitrate) || bitrate < 8000 || bitrate > 96000) {
-            await replyManager.error("Bitrate must be a number between 8 and 96 kbps!").catch(e => logger.error(e));
+        const maxBitrate = getMaxBitrate(channel.discord.guild.premiumTier) * 1000;
+        if (isNaN(bitrate) || bitrate < 8000 || bitrate > maxBitrate) {
+            await replyManager.error(`Bitrate must be a number between 8 and ${maxBitrate/1000} kbps for your server's boost level (Level ${channel.discord.guild.premiumTier})!`).catch(e => logger.error(e));
             return;
         }
 

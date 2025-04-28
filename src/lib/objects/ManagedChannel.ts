@@ -14,7 +14,7 @@ import PanelManager from "../managers/PanelManager";
 import {DiscordUser} from "../sequelize/models/discorduser.model";
 import logger from "../../logger";
 import {createBaseEmbed} from "../managers/ReplyManager";
-import {BLANK_FIELD, formatStatus, formatVideoQuality} from "../utils";
+import {BLANK_FIELD, formatStatus, formatVideoQuality, getMaxBitrate} from "../utils";
 
 export const ownerOverwrites = [
     PermissionsBitField.Flags.ViewChannel,
@@ -311,9 +311,9 @@ export default class ManagedChannel {
                         new TextInputBuilder()
                             .setStyle(TextInputStyle.Short)
                             .setCustomId("bitrate")
-                            .setLabel("Bitrate (8-96 kbps)")
+                            .setLabel(`Bitrate (8-${getMaxBitrate(this.discord.guild.premiumTier)} kbps)`)
                             .setMinLength(1)
-                            .setMaxLength(2)
+                            .setMaxLength(3)
                             .setRequired(true)
                             .setValue(String(Math.floor(this.discord.bitrate / 1000)))
                     ),
