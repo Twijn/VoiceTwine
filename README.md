@@ -1,5 +1,10 @@
 # VoiceTwine
 Create simple, dynamic voice channels to remove clutter from your Discord server!
+## Navigation
+
+- [Installation](#installation)
+- [Updating](#updating)
+
 ## Installation
 > Installation of VoiceTwine requires a basic understanding of server administration
 > & Unix commands.
@@ -49,11 +54,23 @@ DISCORD_CLIENT_SECRET=discord_client_secret
 DISCORD_TOKEN=discord_token
 ```
 
-Install dependencies & build the application. Developer dependencies **are required** to build typescript code.
-
+Install VoiceTwine dependencies with NPM
 ```bash
-npm i
+npm ci
+```
+
+Build VoiceTwine
+```bash
 npm run build
+```
+
+Create and seed the database
+```bash
+npx sequelize-cli db:migrate
+```
+
+Start VoiceTwine
+```bash
 npm start
 ```
 
@@ -88,3 +105,23 @@ To run the service on system restart, use the following command:
 ```bash
 sudo systemctl enable voicetwine
 ```
+
+## Updating
+Update source code by downloading a release or using `git pull`.
+
+Install any missing/updated dependencies
+```bash
+npm ci
+```
+
+Build source code
+```bash
+npm run build
+```
+
+Update the database
+```bash
+npx sequelize-cli db:migrate
+```
+
+You may now restart the application!
