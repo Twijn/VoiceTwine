@@ -60,6 +60,10 @@ class TwineChannelManager {
         return this.channels.get(id);
     }
 
+    getChannels(): Collection<string, ManagedChannel> {
+        return this.channels;
+    }
+
     async deleteChannel(id: string): Promise<ManagedChannel|null> {
         const channel = this.channels.get(id);
         if (channel) {

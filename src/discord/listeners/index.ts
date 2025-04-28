@@ -12,8 +12,11 @@ import MessageDeleteListener from "./message/MessageDeleteListener";
 import VoiceListener from "./voice/VoiceListener";
 
 import ReadyListener from "./ReadyListener";
+import MasterChannelAutocomplete from "./autocomplete/MasterChannelAutocomplete";
 
 const listeners: Listener<any>[] = [
+    new MasterChannelAutocomplete(),
+
     new ChannelDeleteListener(),
     new ChannelUpdateListener(),
 
