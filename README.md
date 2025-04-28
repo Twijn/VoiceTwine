@@ -3,9 +3,14 @@ Create simple, dynamic voice channels to remove clutter from your Discord server
 ## Navigation
 
 - [Installation](#installation)
+    - [Manual Installation](#manual-installation)
+    - [Pterodactyl Installation](#pterodactyl-installation)
 - [Updating](#updating)
+    - [Manual Installation](#manual-installation-updating)
+    - [Pterodactyl Installation](#pterodactyl-installation-updating)
 
 ## Installation
+### Manual Installation
 > Installation of VoiceTwine requires a basic understanding of server administration
 > & Unix commands.
 
@@ -106,7 +111,13 @@ To run the service on system restart, use the following command:
 sudo systemctl enable voicetwine
 ```
 
+### Pterodactyl Installation
+We now have a [Pterodactyl egg available for VoiceTwine!](/panel-eggs/pterodactyl/pterodactyl-egg-voice-twine.json)
+
+To use it, import the above egg into your Panel and create a new server. You'll want to have a MariaDB set up prior to that, ensuring that it's accessible by the Pterodactyl network.
+
 ## Updating
+### Manual Installation: Updating
 Update source code by downloading a release or using `git pull`.
 
 Install any missing/updated dependencies
@@ -125,3 +136,6 @@ npx sequelize-cli db:migrate
 ```
 
 You may now restart the application!
+
+### Pterodactyl Installation: Updating
+You can update your Pterodactyl installation of VoiceTwine by reinstalling the server.
