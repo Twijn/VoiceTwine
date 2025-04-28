@@ -5,6 +5,8 @@ import {
     Collection,
     Guild,
     GuildMember,
+    OverwriteResolvable,
+    PermissionOverwrites,
     VoiceChannel
 } from "discord.js";
 
@@ -157,18 +159,42 @@ class TwineChannelManager {
         // Get formatted channel name using our utility function
         const channelName = await formatChannelName(masterChannel, member);
 
+        // Get the parent category
+        const parentCategory = masterChannel.discord.parent;
+
+        // Create permission overwrites array with owner permissions
+        const permissionOverwrites: OverwriteResolvable[] = [
+            {
+                id: member.id,
+                allow: ownerOverwrites,
+            }
+        ];
+
+        // If parent category exists, sync its permission overwrites
+        if (parentCategory) {
+            // Get all permission overwrites from the category
+            parentCategory.permissionOverwrites.cache.forEach((overwrite: PermissionOverwrites) => {
+                // Skip if this is the owner (we already added them with special permissions)
+                if (overwrite.id === member.id) return;
+
+                // Add this permission overwrite to our array
+                permissionOverwrites.push({
+                    id: overwrite.id,
+                    allow: overwrite.allow,
+                    deny: overwrite.deny
+                });
+            });
+
+            logger.info(`Synced ${permissionOverwrites.length - 1} permission overwrites from category '${parentCategory.name}'`);
+        }
+
         const discordChannel = await guild.channels.create({
             name: channelName,
             type: ChannelType.GuildVoice,
-            parent: masterChannel.discord.parent,
+            parent: parentCategory,
             bitrate: bitrate, // Set the bitrate to match the master channel
             videoQualityMode: videoQualityMode, // Set the video quality to match the master channel
-            permissionOverwrites: [
-                {
-                    id: member.id,
-                    allow: ownerOverwrites,
-                }
-            ],
+            permissionOverwrites: permissionOverwrites,
         });
 
         const databaseChannel = await DiscordChannel.create({
