@@ -10,10 +10,10 @@ import { GuildMember } from "discord.js";
  */
 export async function formatChannelName(masterChannel: ManagedChannel, member: GuildMember): Promise<string> {
     // Default channel name if no naming scheme is provided
-    let channelName = `${member.displayName}'s Channel`;
-    
-    // If there's a naming scheme, use it
-    if (masterChannel.database.namingScheme) {
+    let channelName = masterChannel.database.namingScheme ?? `%M's Channel`;
+
+    // If the scheme includes %N, replace it with the channel count + 1
+    if (channelName.includes('%N')) {
         // Get channel count for this master channel
         const childCount = await DiscordChannel.count({
             where: {
@@ -21,9 +21,14 @@ export async function formatChannelName(masterChannel: ManagedChannel, member: G
                 type: DiscordChannelType.CHILD_CHANNEL
             }
         });
-        
+
         // Replace %N with the channel count + 1
-        channelName = masterChannel.database.namingScheme.replace('%N', (childCount + 1).toString());
+        channelName = channelName.replace('%N', (childCount + 1).toString());
+    }
+
+    // If the scheme includes %M, replace it with the guild member's display name'
+    if (channelName.includes('%M')) {
+        channelName = channelName.replace('%M', member.displayName);
     }
     
     // Discord has a 100 character limit for channel names, but we'll use 30 to be safe

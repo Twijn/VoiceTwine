@@ -1,7 +1,6 @@
-import {ChannelType, ChatInputCommandInteraction, SlashCommandSubcommandBuilder} from "discord.js";
+import {ChatInputCommandInteraction, SlashCommandSubcommandBuilder} from "discord.js";
 
 import ReplyManager from "../../../lib/managers/ReplyManager";
-import TwineChannelManager from "../../../lib/managers/TwineChannelManager";
 import TwineSubcommand from "../../../lib/interfaces/commands/TwineSubcommand";
 import twineChannelManager from "../../../lib/managers/TwineChannelManager";
 
@@ -24,7 +23,7 @@ export default class EditSubcommand implements TwineSubcommand {
         )
         .addStringOption(option => option
             .setName("naming-scheme")
-            .setDescription("Naming scheme for child channels. Use %N for channel number (e.g. '🕹️Gaming Channel | %N')")
+            .setDescription("Naming scheme for child channels. Use %N for channel number and %M for owner name")
             .setMinLength(3)
             .setMaxLength(100)
             .setRequired(false)
