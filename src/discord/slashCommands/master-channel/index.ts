@@ -3,6 +3,7 @@ import {SlashCommandBuilder, InteractionContextType, PermissionFlagsBits} from "
 import TwineCommandWithSubcommands from "../../../lib/interfaces/commands/TwineCommandWithSubcommands";
 
 import CreateSubcommand from "./CreateSubcommand";
+import EditSubcommand from "./EditSubcommand";
 
 export default class MasterChannelCommand extends TwineCommandWithSubcommands {
 
@@ -13,6 +14,7 @@ export default class MasterChannelCommand extends TwineCommandWithSubcommands {
             .setContexts(InteractionContextType.Guild)
             .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild), [
                 new CreateSubcommand(),
+                new EditSubcommand(),
         ]);
     }
 

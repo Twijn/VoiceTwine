@@ -17,7 +17,7 @@ export default class CreateSubcommand implements TwineSubcommand {
         )
         .addStringOption(option => option
             .setName("naming-scheme")
-            .setDescription("Naming scheme for child channels. Use %N for channel number (e.g. '🕹️Gaming Channel | %N')")
+            .setDescription("Naming scheme for child channels. Use %N for channel number and %M for owner name")
             .setMinLength(3)
             .setMaxLength(100)
             .setRequired(false)
