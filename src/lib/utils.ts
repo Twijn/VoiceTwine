@@ -71,6 +71,19 @@ export const formatVideoQuality = (quality: VideoQualityMode): string => {
     }
 }
 
+export const getMaxBitrate = (premiumTier: number): number => {
+    switch (premiumTier) {
+        case 3: // Level 3 (14+ boosts)
+            return 384;
+        case 2: // Level 2 (7+ boosts)
+            return 256;
+        case 1: // Level 1 (2+ boosts)
+            return 128;
+        default: // Level 0 (no boosts)
+            return 96;
+    }
+}
+
 export const formatStatus = (status: DiscordChannelStatus): string => {
     switch (status) {
         case DiscordChannelStatus.PUBLIC:
