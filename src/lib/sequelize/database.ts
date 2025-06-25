@@ -8,6 +8,10 @@ const sequelize = new Sequelize({
     username: process.env.MARIADB_USER ?? "twine",
     password: process.env.MARIADB_PASS ?? "",
     database: process.env.MARIADB_DB ?? "voicetwine",
+    define: {
+        charset: "utf8mb4",
+        collate: "utf8mb4_unicode_ci",
+    },
     logging: msg => logger.debug(msg),
 });
 
