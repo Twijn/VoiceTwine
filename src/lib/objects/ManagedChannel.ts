@@ -379,7 +379,6 @@ export default class ManagedChannel {
     }
 
     async setAllowedMembers(members: string[]) {
-        logger.info(members);
         this.database.members = members.length > 0 ? members.filter(x => x !== "").join(",") : null;
         await this.database.save();
         await this.updatePermissions();
