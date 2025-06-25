@@ -60,7 +60,7 @@ DiscordGuild.init({
         allowNull: true,
     },
     description: {
-        type: DataTypes.STRING(120),
+        type: DataTypes.TEXT,
         allowNull: true,
     },
     icon: {
