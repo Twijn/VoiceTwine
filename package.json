@@ -8,7 +8,7 @@
     "start": "node -v && node dist/app.js",
     "test": "npm run build && npm run start",
     "clean": "rm -rf dist/",
-    "lint": "eslint src/**/*.{js,ts}",
+    "lint": "eslint src/**/*.ts",
     "migrate": "sequelize-cli db:migrate",
     "migrate:undo": "sequelize-cli db:migrate:undo",
     "migrate:status": "sequelize-cli db:migrate:status"
