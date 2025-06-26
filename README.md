@@ -71,7 +71,7 @@ npm run build
 
 Create and seed the database
 ```bash
-npx sequelize-cli db:migrate
+npm run migrate
 ```
 
 Start VoiceTwine
@@ -132,7 +132,7 @@ npm run build
 
 Update the database
 ```bash
-npx sequelize-cli db:migrate
+npm run migrate
 ```
 
 You may now restart the application!
