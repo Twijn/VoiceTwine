@@ -13,6 +13,9 @@ services:
       NODE_ENV: production
       LOG_LEVEL: info
 
+      # Database settings
+      DIALECT: mariadb
+
       # Database connection settings
       MARIADB_HOST: mariadb
       MARIADB_PORT: 3306
