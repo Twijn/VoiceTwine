@@ -41,6 +41,10 @@ function normalizeTableName(tableObj) {
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
+    if (queryInterface.sequelize.getDialect() === "sqlite") {
+      return;
+    }
+
     const tables = await queryInterface.showAllTables();
 
     for (const table of tables) {
@@ -66,6 +70,10 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
+    if (queryInterface.sequelize.getDialect() === "sqlite") {
+      return;
+    }
+
     const tables = await queryInterface.showAllTables();
 
     for (const table of tables) {

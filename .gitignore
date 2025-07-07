@@ -137,3 +137,6 @@ dist
 
 # IntelliJ Idea
 .idea
+
+# Database files
+*.sqlite

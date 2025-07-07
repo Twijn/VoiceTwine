@@ -111,6 +111,10 @@ async function runOnAllTables(queryInterface, query) {
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
+    if (queryInterface.sequelize.getDialect() === "sqlite") {
+        return;
+    }
+
     await queryInterface.sequelize.query(`
       ALTER DATABASE \`${queryInterface.sequelize.config.database}\`
       CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -123,7 +127,11 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.sequelize.query(`
+      if (queryInterface.sequelize.getDialect() === "sqlite") {
+          return;
+      }
+
+      await queryInterface.sequelize.query(`
       ALTER DATABASE \`${queryInterface.sequelize.config.database}\`
       CHARACTER SET utf8 COLLATE utf8_general_ci;
     `);
