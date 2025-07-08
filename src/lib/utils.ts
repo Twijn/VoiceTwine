@@ -5,6 +5,12 @@ import TwineChannelManager from "./managers/TwineChannelManager";
 import {DiscordChannelStatus, DiscordChannelType} from "./sequelize/models/discordchannel.model";
 import logger from "../logger";
 
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+const packageJson = JSON.parse(readFileSync(join(__dirname, '../../package.json'), 'utf8'));
+export const version: string = packageJson.version;
+
 export const BLANK_FIELD =
     {
         name: " ",

@@ -7,12 +7,7 @@ import {
     Message,
     MessageFlags, MessagePayload
 } from "discord.js";
-
-import { readFileSync } from 'fs';
-import { join } from 'path';
-
-const packageJson = JSON.parse(readFileSync(join(__dirname, '../../../package.json'), 'utf8'));
-const version = packageJson.version;
+import { version } from "../utils";
 
 export const SUCCESS_COLOR = 0x32a852;
 export const ERROR_COLOR = 0xab4b3c;

@@ -11,6 +11,9 @@ const startApp = async () => {
 
     // Only import and start Discord bot if database initialization was successful
     await import("./discord");
+
+    // Run version check
+    await import("./versionCheck");
 }
 
 startApp().then(() => {
