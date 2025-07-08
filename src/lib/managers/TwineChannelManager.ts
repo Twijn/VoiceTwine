@@ -40,6 +40,13 @@ class TwineChannelManager {
             } catch(error) {
                 logger.debug(error);
                 logger.error(`Discord channel ${databaseChannel.id} no longer exists. Deleting from database!`);
+                // Remove any existing categories linked to this channel
+                await DiscordChannel.destroy({
+                    where: {
+                        masterChannelId: databaseChannel.id,
+                    }
+                });
+                // Remove the channel from the database
                 databaseChannel.destroy().catch(e => logger.error(e));
             }
         }
