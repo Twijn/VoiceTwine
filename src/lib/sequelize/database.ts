@@ -9,6 +9,7 @@ if (dialect === "sqlite") {
     options = {
         dialect: "sqlite",
         storage: process.env.SQLITE_STORAGE ?? "database.sqlite",
+        logging: msg => logger.debug(msg),
     };
 } else if (dialect === "mariadb") {
     options = {
