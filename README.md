@@ -112,7 +112,7 @@ sudo systemctl enable voicetwine
 ```
 
 ### Pterodactyl Installation
-We now have a [Pterodactyl egg available for VoiceTwine!](/panel-eggs/pterodactyl/pterodactyl-egg-voice-twine.json)
+We now have a [Pterodactyl egg available for VoiceTwine!](/panel-eggs/pterodactyl/egg-voice-twine.json)
 
 To use it, import the above egg into your Panel and create a new server. You'll want to have a MariaDB set up prior to that, ensuring that it's accessible by the Pterodactyl network.
 
