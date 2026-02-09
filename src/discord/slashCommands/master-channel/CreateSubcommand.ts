@@ -1,30 +1,39 @@
-import {ChannelType, ChatInputCommandInteraction, SlashCommandSubcommandBuilder} from "discord.js";
+import {ChannelType, ChatInputCommandInteraction, GuildMember, Locale, SlashCommandSubcommandBuilder} from "discord.js";
 
-import ReplyManager from "../../../lib/managers/ReplyManager";
+import ReplyManager, {ReplyType} from "../../../lib/managers/ReplyManager";
 import TwineChannelManager from "../../../lib/managers/TwineChannelManager";
 import TwineSubcommand from "../../../lib/interfaces/commands/TwineSubcommand";
+import localeManager from "../../../lib/managers/LocaleManager";
 
 export default class CreateSubcommand implements TwineSubcommand {
     data = new SlashCommandSubcommandBuilder()
-        .setName("create")
-        .setDescription("Create a new master channel")
+        .setName(localeManager.t(Locale.EnglishUS, "command.master-channel.create.name"))
+        .setNameLocalizations(localeManager.tall("command.master-channel.create.name"))
+        .setDescription(localeManager.t(Locale.EnglishUS, "command.master-channel.create.description"))
+        .setDescriptionLocalizations(localeManager.tall("command.master-channel.create.description"))
         .addStringOption(option => option
-            .setName("channel-name")
-            .setDescription("Channel Name")
+            .setName(localeManager.t(Locale.EnglishUS, "command.master-channel.option.channel-name.name"))
+            .setNameLocalizations(localeManager.tall("command.master-channel.option.channel-name.name"))
+            .setDescription(localeManager.t(Locale.EnglishUS, "command.master-channel.option.channel-name.description"))
+            .setDescriptionLocalizations(localeManager.tall("command.master-channel.option.channel-name.description"))
             .setMinLength(3)
             .setMaxLength(30)
             .setRequired(false)
         )
         .addStringOption(option => option
-            .setName("naming-scheme")
-            .setDescription("Naming scheme for child channels. Use %N for channel number and %M for owner name")
+            .setName(localeManager.t(Locale.EnglishUS, "command.master-channel.option.naming-scheme.name"))
+            .setNameLocalizations(localeManager.tall("command.master-channel.option.naming-scheme.name"))
+            .setDescription(localeManager.t(Locale.EnglishUS, "command.master-channel.option.naming-scheme.description"))
+            .setDescriptionLocalizations(localeManager.tall("command.master-channel.option.naming-scheme.description"))
             .setMinLength(3)
             .setMaxLength(100)
             .setRequired(false)
         )
         .addChannelOption(option => option
-            .setName("category")
-            .setDescription("The category to add the channel to. If unspecified it will create one")
+            .setName(localeManager.t(Locale.EnglishUS, "command.master-channel.option.category.name"))
+            .setNameLocalizations(localeManager.tall("command.master-channel.option.category.name"))
+            .setDescription(localeManager.t(Locale.EnglishUS, "command.master-channel.option.category.description"))
+            .setDescriptionLocalizations(localeManager.tall("command.master-channel.option.category.description"))
             .addChannelTypes(ChannelType.GuildCategory)
             .setRequired(false)
         );
@@ -35,8 +44,12 @@ export default class CreateSubcommand implements TwineSubcommand {
         let category = interaction.options.getChannel("category", false, [ChannelType.GuildCategory]);
 
         try {
-            const {channel} = await TwineChannelManager.createMaster(interaction.guild, channelName, category, namingScheme);
-            await replyManager.success(`Successfully created master VoiceTwine channel at ${channel.discord.url}!\nTo use it, simply join the channel.`);
+            const {channel} = await TwineChannelManager.createMaster(interaction.member as GuildMember, channelName, category, namingScheme);
+            await replyManager.tm(
+                ReplyType.SUCCESS,
+                "command.master-channel.create.success",
+                channel.url
+            );
         } catch (error) {
             await replyManager.error(error);
         }

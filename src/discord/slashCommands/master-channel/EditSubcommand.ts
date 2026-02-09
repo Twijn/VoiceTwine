@@ -1,63 +1,99 @@
-import {ChatInputCommandInteraction, SlashCommandSubcommandBuilder} from "discord.js";
+import {ChatInputCommandInteraction, GuildMember, Locale, SlashCommandSubcommandBuilder} from "discord.js";
 
-import ReplyManager from "../../../lib/managers/ReplyManager";
+import ReplyManager, {ReplyType} from "../../../lib/managers/ReplyManager";
 import TwineSubcommand from "../../../lib/interfaces/commands/TwineSubcommand";
 import twineChannelManager from "../../../lib/managers/TwineChannelManager";
+import localeManager from "../../../lib/managers/LocaleManager";
 
 export default class EditSubcommand implements TwineSubcommand {
     data = new SlashCommandSubcommandBuilder()
-        .setName("edit")
-        .setDescription("Edit an existing master channel")
+        .setName(localeManager.t(Locale.EnglishUS, "command.master-channel.edit.name"))
+        .setNameLocalizations(localeManager.tall("command.master-channel.edit.name"))
+        .setDescription(localeManager.t(Locale.EnglishUS, "command.master-channel.edit.description"))
+        .setDescriptionLocalizations(localeManager.tall("command.master-channel.edit.description"))
         .addStringOption(option => option
-            .setName("master-channel")
-            .setDescription("The master channel to edit")
+            .setName(localeManager.t(Locale.EnglishUS, "command.master-channel.option.master-channel.name"))
+            .setNameLocalizations(localeManager.tall("command.master-channel.option.master-channel.name"))
+            .setDescription(localeManager.t(Locale.EnglishUS, "command.master-channel.option.master-channel.description"))
+            .setDescriptionLocalizations(localeManager.tall("command.master-channel.option.master-channel.description"))
             .setAutocomplete(true)
             .setRequired(true)
         )
         .addStringOption(option => option
-            .setName("channel-name")
-            .setDescription("Channel Name")
+            .setName(localeManager.t(Locale.EnglishUS, "command.master-channel.option.channel-name.name"))
+            .setNameLocalizations(localeManager.tall("command.master-channel.option.channel-name.name"))
+            .setDescription(localeManager.t(Locale.EnglishUS, "command.master-channel.option.channel-name.description"))
+            .setDescriptionLocalizations(localeManager.tall("command.master-channel.option.channel-name.description"))
             .setMinLength(3)
             .setMaxLength(30)
             .setRequired(false)
         )
         .addStringOption(option => option
-            .setName("naming-scheme")
-            .setDescription("Naming scheme for child channels. Use %N for channel number and %M for owner name")
+            .setName(localeManager.t(Locale.EnglishUS, "command.master-channel.option.naming-scheme.name"))
+            .setNameLocalizations(localeManager.tall("command.master-channel.option.naming-scheme.name"))
+            .setDescription(localeManager.t(Locale.EnglishUS, "command.master-channel.option.naming-scheme.description"))
+            .setDescriptionLocalizations(localeManager.tall("command.master-channel.option.naming-scheme.description"))
             .setMinLength(3)
             .setMaxLength(100)
             .setRequired(false)
         );
 
     async execute(interaction: ChatInputCommandInteraction, replyManager: ReplyManager<ChatInputCommandInteraction>): Promise<void> {
+        const member: GuildMember = interaction.member as GuildMember;
         const masterChannelId = interaction.options.getString("master-channel", true);
         const channelName = interaction.options.getString("channel-name", false);
         const namingScheme = interaction.options.getString("naming-scheme", false);
 
         if (!channelName && !namingScheme) {
-            await replyManager.error(`You must specify either a new channel name or a new naming scheme!`);
+            await replyManager.tm(
+                ReplyType.ERROR,
+                "command.master-channel.edit.error.no-changes-provided"
+            );
             return;
         }
 
         const masterChannel = twineChannelManager.getChannel(masterChannelId);
         if (!masterChannel) {
-            await replyManager.error(`Could not find master channel with ID ${masterChannelId}`);
+            await replyManager.tm(
+                ReplyType.ERROR,
+                "command.master-channel.edit.error.master-channel-missing",
+                masterChannelId
+            );
             return;
         }
 
-        let result = [`**Successfully updated master channel <#${masterChannel.id}>!**`,""];
+        let result = [
+            await localeManager.tm(
+                member,
+                "command.master-channel.edit.success.message",
+                masterChannel.discord.id
+            ),
+            ""
+        ];
 
         if (channelName) {
             await masterChannel.discord.edit({
                 name: channelName,
             });
-            result.push(`- Channel name was updated to \`${channelName}\``);
+            result.push(
+                await localeManager.tm(
+                    member,
+                    "command.master-channel.edit.success.channel-name-updated",
+                    channelName
+                )
+            );
         }
 
         if (namingScheme) {
             masterChannel.database.namingScheme = namingScheme;
             await masterChannel.database.save();
-            result.push(`- Naming scheme was updated to \`${namingScheme}\``);
+            result.push(
+                await localeManager.tm(
+                    member,
+                    "command.master-channel.edit.success.naming-scheme-updated",
+                    namingScheme
+                )
+            );
         }
 
         await replyManager.success(result.join("\n"));

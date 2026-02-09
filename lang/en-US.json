@@ -1,0 +1,165 @@
+{
+  "id": "en-US",
+  "name": "English (US)",
+  "author": "Twijn",
+  "messages": {
+
+    "branding": "VoiceTwine",
+
+    "button": {
+
+      "claim": {
+        "label": "Claim Channel",
+        "success": "You successfully claimed %0!",
+        "error": {
+          "owner-in-channel": "The owner is present in this channel!"
+        }
+      }
+
+    },
+
+    "embed": {
+      "claim": {
+        "title": "The owner has left this channel!",
+        "description": "Click the button below to claim this channel!"
+      }
+    },
+
+    "command": {
+
+      "locale": {
+        "name": "locale",
+        "description": "Manage your locale settings. Server managers may also update the guild locale",
+        "message": "Modify your locale settings below.",
+        "user-updated": "Your locale has been updated to `%0`!",
+        "guild-updated": "The guild locale has been updated to `%0`!",
+        "error": {
+          "no-permission": "You don't have permission to change the guild locale!"
+        }
+      },
+
+      "master-channel": {
+        "name": "master-channel",
+        "description": "Manager for master channel creation, deletion, and editing",
+
+        "option": {
+
+          "channel-name": {
+            "name": "channel-name",
+            "description": "Channel Name"
+          },
+
+          "naming-scheme": {
+            "name": "naming-scheme",
+            "description": "Naming scheme for child channels. Use %N for channel number and %M for owner name"
+          },
+
+          "category": {
+            "name": "category",
+            "description": "The category to add the channel to. If unspecified it will create one"
+          },
+
+          "master-channel": {
+            "name": "master-channel",
+            "description": "The master channel to edit"
+          }
+
+        },
+
+        "create": {
+          "name": "create",
+          "description": "Create a new master channel",
+
+          "success": "Successfully created master VoiceTwine channel at %0!\nTo use it, join the channel.",
+          "error": {
+            "maybe-missing-permissions": "Error creating master channel! Please make sure I have permission to manage channels!"
+          }
+        },
+
+        "edit": {
+          "name": "edit",
+          "description": "Edit an existing master channel",
+
+          "success": {
+            "message": "**Successfully updated master channel <#%0>!**",
+            "channel-name-updated": "- Channel name was updated to `%0`",
+            "naming-scheme-updated": "- Naming scheme was updated to `%0`"
+          },
+          "error": {
+            "no-changes-provided": "You must specify either a new channel name or a new naming scheme!",
+            "master-channel-missing": "Could not find master channel with ID %0"
+          }
+        }
+      },
+
+      "voice": {
+        "name": "voice",
+        "description": "Commands to manage voice channels",
+
+        "edit-channel": {
+          "name": "edit-channel",
+          "description": "Edits the voice channel you're currently in"
+        },
+
+        "grant": {
+          "name": "grant",
+          "description": "Modifies grant settings for the voice channel",
+
+          "success": {
+            "title": "Update Grant Permissions",
+            "description": "Currently updating grant permissions for %0"
+          },
+
+          "error": {
+            "public-channel": "You can't change grant permissions on a public channel!"
+          }
+        },
+
+        "set-status": {
+          "name": "set-status",
+          "description": "Edits the status of the voice channel you're currently in",
+
+          "option": {
+
+            "status": {
+              "name": "name",
+              "description": "The new status of the channel"
+            }
+
+          },
+
+          "success": "Status for %0 was successfully updated to `%1`!",
+
+          "error": {
+            "invalid-status": "Unknown channel status provided: `%0`"
+          }
+        },
+
+        "transfer-ownership": {
+          "name": "transfer-ownership",
+          "description": "Transfers ownership to a different user",
+
+          "option": {
+            "user": {
+              "name": "user",
+              "description": "The user to transfer ownership to"
+            }
+          },
+
+          "success": "Successfully transferred ownership of %0 to <@%1>!"
+        }
+      },
+
+      "ping": {
+        "name": "ping",
+        "description": "Pong!",
+
+        "success": {
+          "latency": "Latency: `%0 ms`",
+          "round-trip-latency": "Round trip latency: `%0 ms`"
+        }
+      }
+
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import {DataTypes, InferAttributes, InferCreationAttributes, Model} from "sequelize";
+import {Locale} from "discord-api-types/v10";
 
 import sequelize from "../database";
 
@@ -16,6 +17,7 @@ export class DiscordUser extends Model<InferAttributes<DiscordUser>, InferCreati
     declare discriminator: string | null;
     declare global_name: string | null;
     declare avatar: string | null;
+    declare locale: Locale | null;
 
     declare createdAt?: Date;
     declare updatedAt?: Date;
@@ -44,6 +46,11 @@ DiscordUser.init({
     },
     avatar: {
         type: DataTypes.STRING,
+        allowNull: true,
+    },
+    locale: {
+        type: DataTypes.ENUM,
+        values: Object.values(Locale),
         allowNull: true,
     },
 }, {

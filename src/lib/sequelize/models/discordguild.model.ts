@@ -1,4 +1,5 @@
 import {DataTypes, InferAttributes, InferCreationAttributes, Model} from "sequelize";
+import {Locale} from "discord-api-types/v10";
 
 import sequelize from "../database";
 
@@ -25,6 +26,7 @@ export class DiscordGuild extends Model<InferAttributes<DiscordGuild>, InferCrea
     declare ownerId: string;
     declare name: string;
     declare nameAcronym: string;
+    declare locale: Locale | null;
     declare description: string;
 
     declare icon: string;
@@ -57,6 +59,11 @@ DiscordGuild.init({
     },
     nameAcronym: {
         type: DataTypes.STRING(5),
+        allowNull: true,
+    },
+    locale: {
+        type: DataTypes.ENUM,
+        values: Object.values(Locale),
         allowNull: true,
     },
     description: {

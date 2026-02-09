@@ -20,6 +20,7 @@ import PanelManager from "./PanelManager";
 import ManagedChannel, {ownerOverwrites} from "../objects/ManagedChannel";
 import {DiscordGuild} from "../sequelize/models/discordguild.model";
 import { formatChannelName } from "../utils/channelNaming";
+import localeManager from "./LocaleManager";
 
 const DEFAULT_CATEGORY_NAME = "Voice-Twine Channels";
 const DEFAULT_CHANNEL_NAME = "+ Create New Channel";
@@ -94,8 +95,10 @@ class TwineChannelManager {
         return channel;
     }
 
-    async createMaster(guild: Guild, channelName?: string|null, discordCategory?: CategoryChannel|null, namingScheme?: string|null) {
+    async createMaster(member: GuildMember, channelName?: string|null, discordCategory?: CategoryChannel|null, namingScheme?: string|null) {
         if (!channelName) channelName = DEFAULT_CHANNEL_NAME;
+
+        const guild = member.guild;
 
         // upsert the owner user & Guild in case it doesn't exist.
         await DiscordUser.upsert((await guild.fetchOwner()).user);
@@ -108,7 +111,7 @@ class TwineChannelManager {
                 });
             } catch (error) {
                 logger.error(error);
-                throw "Error creating master category channel! Please make sure I have permission to manage channels!";
+                throw await localeManager.tm(member, "command.master-channel.create.error.maybe-missing-permissions");
             }
         }
 
@@ -121,7 +124,7 @@ class TwineChannelManager {
             });
         } catch(error) {
             logger.error(error);
-            throw "Error creating master voice channel! Please make sure I have permission to manage channels. (Check the category permissions too!)";
+            throw await localeManager.tm(member, "command.master-channel.create.error.maybe-missing-permissions");
         }
 
         try {

@@ -1,8 +1,8 @@
-import {ButtonInteraction} from "discord.js";
+import {ButtonInteraction, GuildMember} from "discord.js";
 
 import {getChannelFromPanel} from "../../../lib/utils";
 
-import ReplyManager from "../../../lib/managers/ReplyManager";
+import ReplyManager, {ReplyType} from "../../../lib/managers/ReplyManager";
 import InteractionListener from "../../../lib/interfaces/InteractionListener";
 import ManagedChannel from "../../../lib/objects/ManagedChannel";
 
@@ -23,13 +23,13 @@ export default class ClaimChannel implements InteractionListener<ButtonInteracti
         }
 
         if (channel.ownerPresent) {
-            await replyManager.error("The owner is present in the channel!");
+            await replyManager.tm(ReplyType.ERROR, "button.claim.error.owner-in-channel");
             return;
         }
 
         try {
             await channel.setOwner(interaction.user);
-            await replyManager.success(`You successfully claimed ${channel.url}!`);
+            await replyManager.tm(ReplyType.SUCCESS, "button.claim.success", channel.url);
         } catch (e) {
             await replyManager.error(e.message);
         }

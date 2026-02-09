@@ -1,6 +1,7 @@
 import {
+    APIInteractionGuildMember,
     EmbedBuilder,
-    Guild,
+    Guild, GuildMember,
     InteractionCallbackResponse,
     InteractionDeferReplyOptions, InteractionEditReplyOptions, InteractionReplyOptions,
     InteractionResponse,
@@ -9,14 +10,17 @@ import {
 } from "discord.js";
 import { version } from "../utils";
 
+import localeManager, {Messages} from "./LocaleManager";
+import {Locale} from "discord-api-types/v10";
+
 export const SUCCESS_COLOR = 0x32a852;
 export const ERROR_COLOR = 0xab4b3c;
 export const THEME_COLOR = 0x819ec9;
 
-enum ReplyType {
-    INFO,
-    SUCCESS,
-    ERROR,
+export enum ReplyType {
+    INFO = "info",
+    SUCCESS = "success",
+    ERROR = "error",
 }
 
 export function createBaseEmbed(guild: Guild = null, color: number = THEME_COLOR) {
@@ -30,6 +34,7 @@ export function createBaseEmbed(guild: Guild = null, color: number = THEME_COLOR
 }
 
 export type TwineInteraction = {
+    member: GuildMember|APIInteractionGuildMember;
     reply: (message: InteractionReplyOptions) => Promise<Message>;
     editReply: (message: string|MessagePayload|InteractionEditReplyOptions) => Promise<InteractionResponse|Message>;
     deferred: boolean;
@@ -65,17 +70,7 @@ export default class ReplyManager<T extends TwineInteraction> {
         this.interaction = interaction;
     }
 
-    defer(ephemeral: boolean = true) {
-        if (ephemeral) {
-            return this.interaction.deferReply({
-                flags: MessageFlags.Ephemeral,
-            });
-        } else {
-            return this.interaction.deferReply();
-        }
-    }
-
-    edit(messageText: string, title?: string): Promise<InteractionResponse|Message> {
+    public edit(messageText: string, title?: string): Promise<InteractionResponse|Message> {
         let color = THEME_COLOR;
 
         switch (this.repliedWith) {
@@ -96,20 +91,38 @@ export default class ReplyManager<T extends TwineInteraction> {
         return this.interaction.editReply(this.createMessageData(title, messageText, color) as InteractionEditReplyOptions);
     }
 
-    success(messageText: string): Promise<InteractionResponse|Message> {
+    public defer(ephemeral: boolean = true) {
+        if (ephemeral) {
+            return this.interaction.deferReply({
+                flags: MessageFlags.Ephemeral,
+            });
+        } else {
+            return this.interaction.deferReply();
+        }
+    }
+
+    public success(messageText: string): Promise<InteractionResponse|Message> {
         this.repliedWith = ReplyType.SUCCESS;
         return this.reply("Success!", messageText, SUCCESS_COLOR);
     }
 
-    error(messageText: string): Promise<InteractionResponse|Message> {
+    public error(messageText: string): Promise<InteractionResponse|Message> {
         this.repliedWith = ReplyType.ERROR;
         return this.reply("Error", messageText, ERROR_COLOR);
     }
 
-    info(messageText: string, title?: string): Promise<InteractionResponse|Message> {
+    public info(messageText: string, title?: string): Promise<InteractionResponse|Message> {
         if (!title) title = "Information";
         this.repliedWith = ReplyType.INFO;
         return this.reply(title, messageText, THEME_COLOR);
+    }
+
+    public t(type: ReplyType, locale: Locale, key: keyof Messages, ...args: unknown[]): Promise<InteractionResponse|Message> {
+        return this[type](localeManager.t(locale, key, ...args));
+    }
+
+    public async tm(type: ReplyType, key: keyof Messages, ...args: unknown[]): Promise<InteractionResponse|Message> {
+        return this[type](await localeManager.tm(this.interaction.member as GuildMember, key, ...args));
     }
 
 }

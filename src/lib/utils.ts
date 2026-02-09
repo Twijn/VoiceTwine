@@ -57,7 +57,6 @@ export const getChannelFromMember = (member: GuildMember, executorId: string = n
 
 export const getChannelFromPanelOrMember = (messageId: string, member: GuildMember, executorId?: string): ManagedChannel => {
     if (!executorId) {
-        console.log(member);
         executorId = member.id;
     }
     try {

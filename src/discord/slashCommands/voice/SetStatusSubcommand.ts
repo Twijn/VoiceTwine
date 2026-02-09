@@ -1,21 +1,26 @@
-import {ChatInputCommandInteraction, GuildMember, SlashCommandSubcommandBuilder} from "discord.js";
+import {ChatInputCommandInteraction, GuildMember, Locale, SlashCommandSubcommandBuilder} from "discord.js";
 
 import {getChannelFromMember} from "../../../lib/utils";
 
 import {DiscordChannelStatus} from "../../../lib/sequelize/models/discordchannel.model";
 
-import ReplyManager from "../../../lib/managers/ReplyManager";
+import ReplyManager, {ReplyType} from "../../../lib/managers/ReplyManager";
 import TwineSubcommand from "../../../lib/interfaces/commands/TwineSubcommand";
 import ManagedChannel from "../../../lib/objects/ManagedChannel";
+import localeManager from "../../../lib/managers/LocaleManager";
 
 export default class SetStatusSubcommand implements TwineSubcommand {
     data = new SlashCommandSubcommandBuilder()
-        .setName("set-status")
-        .setDescription("Edits the voice channel you're currently in")
+        .setName(localeManager.t(Locale.EnglishUS, "command.voice.set-status.name"))
+        .setNameLocalizations(localeManager.tall("command.voice.set-status.name"))
+        .setDescription(localeManager.t(Locale.EnglishUS, "command.voice.set-status.description"))
+        .setDescriptionLocalizations(localeManager.tall("command.voice.set-status.description"))
         .addStringOption(opt => opt
-            .setName("status")
-            .setDescription("The new status of the channel")
-            .setChoices(
+            .setName(localeManager.t(Locale.EnglishUS, "command.voice.set-status.option.status.name"))
+            .setNameLocalizations(localeManager.tall("command.voice.set-status.option.status.name"))
+            .setDescription(localeManager.t(Locale.EnglishUS, "command.voice.set-status.option.status.description"))
+            .setDescriptionLocalizations(localeManager.tall("command.voice.set-status.option.status.description"))
+            .setChoices( // TODO: Add localization for choices, if possible?
                 {
                     name: "Public",
                     value: "public",
@@ -33,10 +38,11 @@ export default class SetStatusSubcommand implements TwineSubcommand {
         );
 
     async execute(interaction: ChatInputCommandInteraction, replyManager: ReplyManager<ChatInputCommandInteraction>): Promise<void> {
+        const member: GuildMember = interaction.member as GuildMember;
         let channel: ManagedChannel;
 
         try {
-            channel = getChannelFromMember(<GuildMember>interaction.member, interaction.user.id);
+            channel = getChannelFromMember(member, interaction.user.id);
         } catch (e) {
             await replyManager.error(e.message);
             return;
@@ -55,13 +61,22 @@ export default class SetStatusSubcommand implements TwineSubcommand {
                 status = DiscordChannelStatus.HIDDEN;
                 break;
             default:
-                await replyManager.error(`Unknown channel status provided: ${stringStatus}`);
+                await replyManager.tm(
+                    ReplyType.ERROR,
+                    "command.voice.set-status.error.invalid-status",
+                    stringStatus
+                );
                 return;
         }
 
         await replyManager.defer(true);
         await channel.setStatus(status);
-        await replyManager.success(`Status for ${channel.url} was successfully updated to \`${channel.status}\`!`);
+        await replyManager.tm(
+            ReplyType.SUCCESS,
+            "command.voice.set-status.success",
+            channel.url,
+            channel.status
+        );
     }
 
 }
