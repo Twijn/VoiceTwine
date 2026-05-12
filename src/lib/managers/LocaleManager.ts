@@ -14,6 +14,13 @@ export interface Messages {
     "button.claim.success": string;
     "button.claim.error.owner-in-channel": string;
 
+    "modal.master-channel.edit.title": string;
+    "modal.master-channel.edit.channel-name-label": string;
+    "modal.master-channel.edit.channel-name-description": string;
+    "modal.master-channel.edit.naming-scheme-label": string;
+    "modal.master-channel.edit.naming-scheme-description": string;
+    "modal.master-channel.edit.success.message": string;
+
     "command.locale.name": string;
     "command.locale.description": string;
     "command.locale.message": string;
@@ -143,7 +150,7 @@ class LocaleManager {
                         locale
                     )
                 );
-            } catch (error) {
+            } catch {
                 // Skip missing language files
             }
         }
@@ -169,16 +176,19 @@ class LocaleManager {
         }
 
         params.forEach((param, index) => {
-            value = value.replace(`%${index}`, param.toString());
+            if (value) {
+                value = value.replace(`%${index}`, param?.toString() || "");
+            }
         });
 
-        return value;
+        return value || "";
     }
 
     public async tg(guild: Guild, key: MessageKeys, ...params: unknown[]): Promise<string> {
         let locale: Locale = Locale.EnglishUS;
         if (this.guildLangCache.has(guild.id)) {
-            locale = this.guildLangCache.get(guild.id)!;
+            const l = this.guildLangCache.get(guild.id);
+            if (l) locale = l;
         } else {
             const discordGuild = await DiscordGuild.findByPk(guild.id);
             if (discordGuild?.locale) {
@@ -193,7 +203,8 @@ class LocaleManager {
     public async tm(member: GuildMember, key: MessageKeys, ...params: unknown[]): Promise<string> {
         let locale: Locale = Locale.EnglishUS;
         if (this.memberLangCache.has(member.id)) {
-            locale = this.memberLangCache.get(member.id)!;
+            const l = this.memberLangCache.get(member.id);
+            if (l) locale = l;
         } else {
             const discordUser = await DiscordUser.findByPk(member.id);
             if (discordUser?.locale) {

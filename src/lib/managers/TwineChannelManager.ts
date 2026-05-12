@@ -3,7 +3,6 @@ import {
     ChannelType,
     Client,
     Collection,
-    Guild,
     GuildMember,
     OverwriteResolvable,
     PermissionOverwrites,
@@ -35,7 +34,7 @@ class TwineChannelManager {
         for (const databaseChannel of databaseChannels) {
             try {
                 const discordChannel = await client.channels.fetch(databaseChannel.id);
-                if (discordChannel.isVoiceBased() || discordChannel instanceof CategoryChannel) {
+                if (discordChannel?.isVoiceBased() || discordChannel instanceof CategoryChannel) {
                     this.channels.set(databaseChannel.id, new ManagedChannel(databaseChannel, discordChannel));
                 }
             } catch(error) {
@@ -72,6 +71,18 @@ class TwineChannelManager {
         return this.channels;
     }
 
+    async updateChannel(id: string, update: Partial<Pick<DiscordChannel, "namingScheme">>): Promise<ManagedChannel|null> {
+        const channel = this.channels.get(id);
+        if (!channel) return null;
+
+        if (update.namingScheme !== undefined) {
+            channel.database.namingScheme = update.namingScheme;
+        }
+
+        await channel.database.save();
+        return channel;
+    }
+
     async deleteChannel(id: string): Promise<ManagedChannel|null> {
         const channel = this.channels.get(id);
         if (channel) {
@@ -92,7 +103,7 @@ class TwineChannelManager {
             await channel.delete();
         }
         this.channels.delete(id);
-        return channel;
+        return channel ?? null;
     }
 
     async createMaster(member: GuildMember, channelName?: string|null, discordCategory?: CategoryChannel|null, namingScheme?: string|null) {
@@ -206,8 +217,9 @@ class TwineChannelManager {
             name: channelName,
             type: ChannelType.GuildVoice,
             parent: parentCategory,
+            userLimit: masterChannel.discord.isVoiceBased() ? masterChannel.discord.userLimit : undefined, // Set the user limit to match the master channel
             bitrate: bitrate, // Set the bitrate to match the master channel
-            videoQualityMode: videoQualityMode, // Set the video quality to match the master channel
+            videoQualityMode: videoQualityMode ?? undefined, // Set the video quality to match the master channel
             permissionOverwrites: permissionOverwrites,
         });
 

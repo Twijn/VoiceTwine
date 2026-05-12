@@ -14,12 +14,13 @@ export default class PanelEdit implements InteractionListener<ModalSubmitInterac
     }
 
     async execute(interaction: ModalSubmitInteraction, replyManager: ReplyManager<ModalSubmitInteraction>): Promise<void> {
+        if (!interaction?.message?.id) return;
         let channel: ManagedChannel;
 
         try {
             channel = getChannelFromPanelOrMember(interaction?.message?.id, <GuildMember>interaction.member, interaction.user.id);
         } catch (e) {
-            await replyManager.error(e.message);
+            await replyManager.error((e as Error).message);
             return;
         }
 

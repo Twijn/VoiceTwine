@@ -25,6 +25,21 @@
       }
     },
 
+    "modal": {
+      "master-channel": {
+        "edit": {
+          "success": {
+            "message": "**Successfully updated master channel!**"
+          },
+          "title": "Edit Master Channel",
+          "channel-name-label": "Channel Name",
+          "channel-name-description": "The name of the master channel",
+          "naming-scheme-label": "Naming Scheme",
+          "naming-scheme-description": "The naming scheme for child channels. Use %N for channel number and %M for owner name"
+        }
+      }
+    },
+
     "command": {
 
       "locale": {

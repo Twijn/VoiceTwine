@@ -1,9 +1,10 @@
-import {ChatInputCommandInteraction, GuildMember, Locale, SlashCommandSubcommandBuilder} from "discord.js";
+import {ChatInputCommandInteraction, GuildMember, LabelBuilder, Locale, ModalBuilder, SlashCommandSubcommandBuilder, TextInputBuilder, TextInputStyle} from "discord.js";
 
 import ReplyManager, {ReplyType} from "../../../lib/managers/ReplyManager";
 import TwineSubcommand from "../../../lib/interfaces/commands/TwineSubcommand";
 import twineChannelManager from "../../../lib/managers/TwineChannelManager";
 import localeManager from "../../../lib/managers/LocaleManager";
+import { DEFAULT_NAMING_SCHEME } from "../../../lib/utils/channelNaming";
 
 export default class EditSubcommand implements TwineSubcommand {
     data = new SlashCommandSubcommandBuilder()
@@ -44,14 +45,6 @@ export default class EditSubcommand implements TwineSubcommand {
         const channelName = interaction.options.getString("channel-name", false);
         const namingScheme = interaction.options.getString("naming-scheme", false);
 
-        if (!channelName && !namingScheme) {
-            await replyManager.tm(
-                ReplyType.ERROR,
-                "command.master-channel.edit.error.no-changes-provided"
-            );
-            return;
-        }
-
         const masterChannel = twineChannelManager.getChannel(masterChannelId);
         if (!masterChannel) {
             await replyManager.tm(
@@ -59,6 +52,47 @@ export default class EditSubcommand implements TwineSubcommand {
                 "command.master-channel.edit.error.master-channel-missing",
                 masterChannelId
             );
+            return;
+        }
+
+        if (!channelName && !namingScheme) {
+            const modal = new ModalBuilder()
+                .setCustomId(`master-edit-${masterChannelId}`)
+                .setTitle(await localeManager.tm(member, "modal.master-channel.edit.title"));
+
+            const initialNamingScheme = masterChannel.database.namingScheme || DEFAULT_NAMING_SCHEME;
+
+            let channelNameInput = new TextInputBuilder()
+                .setValue(masterChannel.name)
+                .setStyle(TextInputStyle.Short)
+                .setCustomId("channel-name")
+                .setMinLength(1)
+                .setMaxLength(30)
+                .setRequired(true);
+
+            const channelNameLabel = new LabelBuilder()
+                .setLabel(await localeManager.tm(member, "modal.master-channel.edit.channel-name-label"))
+                .setDescription(await localeManager.tm(member, "modal.master-channel.edit.channel-name-description"))
+                .setTextInputComponent(channelNameInput);
+
+            modal.addLabelComponents(channelNameLabel);
+
+            let namingSchemeInput = new TextInputBuilder()
+                .setValue(initialNamingScheme)
+                .setStyle(TextInputStyle.Short)
+                .setCustomId("naming-scheme")
+                .setMinLength(3)
+                .setMaxLength(100)
+                .setRequired(true);
+
+            const namingSchemeLabel = new LabelBuilder()
+                .setLabel(await localeManager.tm(member, "modal.master-channel.edit.naming-scheme-label"))
+                .setDescription(await localeManager.tm(member, "modal.master-channel.edit.naming-scheme-description"))
+                .setTextInputComponent(namingSchemeInput);
+
+            modal.addLabelComponents(namingSchemeLabel);
+
+            await interaction.showModal(modal);
             return;
         }
 

@@ -2,6 +2,8 @@ import { DiscordChannel, DiscordChannelType } from "../sequelize/models/discordc
 import ManagedChannel from "../objects/ManagedChannel";
 import { GuildMember } from "discord.js";
 
+export const DEFAULT_NAMING_SCHEME = `%M's Channel`;
+
 /**
  * Formats a channel name based on the naming scheme and channel count
  * @param masterChannel The master channel that contains the naming scheme
@@ -10,7 +12,7 @@ import { GuildMember } from "discord.js";
  */
 export async function formatChannelName(masterChannel: ManagedChannel, member: GuildMember): Promise<string> {
     // Default channel name if no naming scheme is provided
-    let channelName = masterChannel.database.namingScheme ?? `%M's Channel`;
+    let channelName = masterChannel.database.namingScheme ?? DEFAULT_NAMING_SCHEME;
 
     // If the scheme includes %N, replace it with the channel count + 1
     if (channelName.includes('%N')) {

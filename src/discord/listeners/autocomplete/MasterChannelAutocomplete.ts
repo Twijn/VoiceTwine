@@ -1,6 +1,5 @@
-import {ApplicationCommandOptionChoiceData, AutocompleteInteraction, Events} from "discord.js";
+import {ApplicationCommandOptionChoiceData, BaseInteraction, Events} from "discord.js";
 import Listener, {ListenerType} from "../../../lib/interfaces/Listener";
-import logger from "../../../logger";
 import twineChannelManager from "../../../lib/managers/TwineChannelManager";
 import {DiscordChannelType} from "../../../lib/sequelize/models/discordchannel.model";
 
@@ -9,11 +8,10 @@ export default class MasterChannelAutocomplete implements Listener<Events.Intera
 
     event = Events.InteractionCreate;
 
-    async execute(interaction: AutocompleteInteraction): Promise<void> {
+    async execute(interaction: BaseInteraction): Promise<void> {
         if (!interaction.isAutocomplete()) return;
 
         const focusedOption = interaction.options.getFocused(true);
-        logger.info(focusedOption.name);
         if (focusedOption.name !== "master-channel") return;
 
         const matchingChannels = twineChannelManager.getChannels().filter(

@@ -18,7 +18,7 @@ export const BLANK_FIELD =
         inline: true,
     };
 
-export const getChannelFromPanel = (messageId: string, executorId: string = null): ManagedChannel => {
+export const getChannelFromPanel = (messageId: string, executorId: string|null = null): ManagedChannel => {
     const panel = PanelManager.getPanel(messageId);
 
     if (!panel) {
@@ -37,7 +37,7 @@ export const getChannelFromPanel = (messageId: string, executorId: string = null
     return channel;
 }
 
-export const getChannelFromMember = (member: GuildMember, executorId: string = null): ManagedChannel => {
+export const getChannelFromMember = (member: GuildMember, executorId: string|null = null): ManagedChannel => {
     if (!member?.voice?.channelId) {
         throw new Error("You aren't in a voice channel!");
     }

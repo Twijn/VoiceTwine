@@ -20,12 +20,12 @@ export enum DiscordChannelStatus {
 export class DiscordChannel extends Model<InferAttributes<DiscordChannel>, InferCreationAttributes<DiscordChannel>> {
     declare id: string;
     declare type: DiscordChannelType;
-    declare status: DiscordChannelStatus;
+    declare status?: DiscordChannelStatus;
     declare members: string | null;
-    declare masterChannelId: string;
+    declare masterChannelId: string | null;
     declare guildId: string;
-    declare ownerId: string;
-    declare namingScheme: string;
+    declare ownerId: string | null;
+    declare namingScheme?: string | null;
 
     declare createdAt?: Date;
     declare updatedAt?: Date;

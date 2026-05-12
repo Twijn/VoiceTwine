@@ -5,7 +5,7 @@ import sequelize from "../database";
 
 import {DiscordUser} from "./discorduser.model";
 
-export const getGuildIcon = (guild: DiscordGuild, size = 64): string => {
+export const getGuildIcon = (guild: DiscordGuild, size = 64): string | null => {
     if (guild.icon) {
         return `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=${size}`;
     } else {
@@ -13,9 +13,9 @@ export const getGuildIcon = (guild: DiscordGuild, size = 64): string => {
     }
 }
 
-export const getGuildBanner = (guild: DiscordGuild, size = 64): string => {
+export const getGuildBanner = (guild: DiscordGuild, size = 64): string | null => {
     if (guild.banner) {
-        return `https://cdn.discordapp.com/icons/${guild.id}/${guild.banner}.webp?size=${size}`;
+        return `https://cdn.discordapp.com/banners/${guild.id}/${guild.banner}.webp?size=${size}`;
     } else {
         return null;
     }
@@ -25,17 +25,17 @@ export class DiscordGuild extends Model<InferAttributes<DiscordGuild>, InferCrea
     declare id: string;
     declare ownerId: string;
     declare name: string;
-    declare nameAcronym: string;
+    declare nameAcronym: string | null;
     declare locale: Locale | null;
-    declare description: string;
+    declare description: string | null;
 
-    declare icon: string;
-    declare banner: string;
+    declare icon: string | null;
+    declare banner: string | null;
 
     declare createdAt?: Date;
     declare updatedAt?: Date;
 
-    getGuildIcon(size = 64): string {
+    getGuildIcon(size = 64): string | null {
         return getGuildIcon(this, size);
     }
 }
