@@ -2,12 +2,14 @@ import {DiscordChannel, DiscordChannelStatus, DiscordChannelType} from "../seque
 import {
     ActionRowBuilder, APISelectMenuDefaultValue, ButtonBuilder, ButtonStyle,
     CategoryChannel, cleanCodeBlockContent, codeBlock,
-    GuildChannelEditOptions, MentionableSelectMenuBuilder, MessageCreateOptions, MessageEditOptions,
+    GuildChannelEditOptions, LabelBuilder, MentionableSelectMenuBuilder, MessageCreateOptions, MessageEditOptions,
     ModalBuilder,
     OverwriteResolvable,
     PermissionsBitField, SelectMenuDefaultValueType,
+    StringSelectMenuBuilder,
     TextInputBuilder,
     TextInputStyle, User,
+    VideoQualityMode,
     VoiceBasedChannel,
 } from "discord.js";
 import PanelManager from "../managers/PanelManager";
@@ -59,16 +61,18 @@ export default class ManagedChannel {
     }
 
     public get ownerPresent() {
-        return this.discord.members.has(this.database.ownerId);
+        return this?.database?.ownerId && this.discord.members.has(this.database.ownerId);
     }
 
     private getOverwrites(): OverwriteResolvable[] {
-        let overwrites: OverwriteResolvable[] = [
-            {
-                id: this.database.ownerId,
+        let overwrites: OverwriteResolvable[] = [];
+
+        if (this.database?.ownerId) {
+            overwrites.push({
+                id: this.database.ownerId ?? '',
                 allow: ownerOverwrites,
-            },
-        ];
+            });
+        }
 
         if (this.status !== DiscordChannelStatus.PUBLIC) {
             const deny = [
@@ -202,12 +206,12 @@ export default class ManagedChannel {
                     BLANK_FIELD,
                     {
                         name: "👑 Channel Owner",
-                        value: `<@${this.database.ownerId}>`,
+                        value: this.database?.ownerId ? `<@${this.database.ownerId}>` : "None",
                         inline: true,
                     },
                     {
                         name: "⭐ Channel Status",
-                        value: codeBlock(cleanCodeBlockContent(formatStatus(this.database.status))),
+                        value: codeBlock(cleanCodeBlockContent(formatStatus(this.database?.status ?? DiscordChannelStatus.PUBLIC))),
                         inline: true,
                     },
                     BLANK_FIELD,
@@ -282,55 +286,81 @@ export default class ManagedChannel {
             throw new Error("Edit modals can only be generated for child channels!");
         }
 
-        return new ModalBuilder()
+        const modal = new ModalBuilder()
             .setCustomId("edit")
-            .setTitle(`Edit '${this.discord.name}'`)
-            .setComponents(
-                new ActionRowBuilder<TextInputBuilder>()
-                    .setComponents(
-                        new TextInputBuilder()
-                            .setStyle(TextInputStyle.Short)
-                            .setCustomId("name")
-                            .setLabel("Name")
-                            .setMinLength(2)
-                            .setMaxLength(30)
-                            .setRequired(true)
-                            .setValue(this.discord.name)
-                    ),
-                new ActionRowBuilder<TextInputBuilder>()
-                    .setComponents(
-                        new TextInputBuilder()
-                            .setStyle(TextInputStyle.Short)
-                            .setCustomId("user-limit")
-                            .setLabel("User Limit (0-99, 0 = no limit)")
-                            .setMinLength(1)
-                            .setMaxLength(2)
-                            .setRequired(true)
-                            .setValue(String(this.discord.userLimit))
-                    ),
-                new ActionRowBuilder<TextInputBuilder>()
-                    .setComponents(
-                        new TextInputBuilder()
-                            .setStyle(TextInputStyle.Short)
-                            .setCustomId("bitrate")
-                            .setLabel(`Bitrate (8-${getMaxBitrate(this.discord.guild.premiumTier)} kbps)`)
-                            .setMinLength(1)
-                            .setMaxLength(3)
-                            .setRequired(true)
-                            .setValue(String(Math.floor(this.discord.bitrate / 1000)))
-                    ),
-                new ActionRowBuilder<TextInputBuilder>()
-                    .setComponents(
-                        new TextInputBuilder()
-                            .setStyle(TextInputStyle.Short)
-                            .setCustomId("video-quality")
-                            .setLabel("Video Quality (Auto, 720p)")
-                            .setMinLength(4)
-                            .setMaxLength(4)
-                            .setRequired(true)
-                            .setValue(formatVideoQuality(this.discord.videoQualityMode))
-                    )
-            );
+            .setTitle(`Edit '${this.discord.name}'`);
+
+        const nameInput = new TextInputBuilder()
+            .setStyle(TextInputStyle.Short)
+            .setCustomId("name")
+            .setMinLength(2)
+            .setMaxLength(30)
+            .setRequired(true)
+            .setValue(this.discord.name);
+
+        const nameLabel = new LabelBuilder()
+            .setLabel("Name")
+            .setDescription("The name of your channel (2-30 characters)")
+            .setTextInputComponent(nameInput);
+
+        modal.addLabelComponents(nameLabel);
+
+        const userLimitInput = new TextInputBuilder()
+            .setStyle(TextInputStyle.Short)
+            .setCustomId("user-limit")
+            .setMinLength(1)
+            .setMaxLength(2)
+            .setRequired(true)
+            .setValue(String(this.discord.userLimit));
+
+        const userLimitLabel = new LabelBuilder()
+            .setLabel("User Limit")
+            .setDescription("The maximum number of users that can be in the channel at once. Set to 0 for no limit.")
+            .setTextInputComponent(userLimitInput);
+
+        modal.addLabelComponents(userLimitLabel);
+
+        const bitrateInput = new TextInputBuilder()
+            .setStyle(TextInputStyle.Short)
+            .setCustomId("bitrate")
+            .setMinLength(1)
+            .setMaxLength(3)
+            .setRequired(true)
+            .setValue(String(Math.floor(this.discord.bitrate / 1000)));
+
+        const bitrateLabel = new LabelBuilder()
+            .setLabel("Bitrate")
+            .setDescription(`The audio quality of your channel in kbps. Must be between 8 and ${getMaxBitrate(this.discord.guild.premiumTier)}.`)
+            .setTextInputComponent(bitrateInput);
+
+        modal.addLabelComponents(bitrateLabel);
+
+        const videoQualityInput = new StringSelectMenuBuilder()
+            .setCustomId("video-quality")
+            .setPlaceholder("Select the video quality for your channel")
+            .setMinValues(1)
+            .setMaxValues(1)
+            .addOptions([
+                {
+                    label: "Auto",
+                    value: "auto",
+                    default: !this.discord.videoQualityMode || this.discord.videoQualityMode === VideoQualityMode.Auto,
+                },
+                {
+                    label: "720p",
+                    value: "720p",
+                    default: this.discord.videoQualityMode === VideoQualityMode.Full,
+                },
+            ]);
+
+        const videoQualityLabel = new LabelBuilder()
+            .setLabel("Video Quality")
+            .setDescription("Choose video quality: Auto adjusts by connection quality, while 720p always targets 720p.")
+            .setStringSelectMenuComponent(videoQualityInput);
+
+        modal.addLabelComponents(videoQualityLabel);
+
+        return modal;
     }
 
     async updatePanels(): Promise<void> {
@@ -362,7 +392,7 @@ export default class ManagedChannel {
 
         // Check if the old owner exists in granted members. If not, add them!
         const members = this?.database?.members?.split(",") ?? [];
-        if (!members.includes(this.database.ownerId)) {
+        if (this.database.ownerId && !members.includes(this.database.ownerId)) {
             members.push(this.database.ownerId);
             this.database.members = members.filter(x => x !== "").join(",");
         }

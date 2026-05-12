@@ -27,7 +27,7 @@ export default class PanelEdit implements InteractionListener<ModalSubmitInterac
         const name = interaction.fields.getTextInputValue("name");
         const userLimit = Number(interaction.fields.getTextInputValue("user-limit"));
         const bitrate = Math.floor(Number(interaction.fields.getTextInputValue("bitrate")))*1000;
-        let videoQuality = interaction.fields.getTextInputValue("video-quality") ?? "";
+        let videoQuality = interaction.fields.getStringSelectValues("video-quality")?.[0] || "auto";
 
         if (!name || name.length < 2 || name.length > 30) {
             await replyManager.error("Name must be between 2 and 30 characters long!").catch(e => logger.error(e));

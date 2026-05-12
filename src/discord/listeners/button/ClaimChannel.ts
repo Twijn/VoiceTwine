@@ -1,4 +1,4 @@
-import {ButtonInteraction, GuildMember} from "discord.js";
+import {ButtonInteraction} from "discord.js";
 
 import {getChannelFromPanel} from "../../../lib/utils";
 
@@ -18,7 +18,7 @@ export default class ClaimChannel implements InteractionListener<ButtonInteracti
         try {
             channel = getChannelFromPanel(interaction.message.id, null);
         } catch (e) {
-            await replyManager.error(e.message);
+            await replyManager.error((e as Error).message);
             return;
         }
 
@@ -31,7 +31,7 @@ export default class ClaimChannel implements InteractionListener<ButtonInteracti
             await channel.setOwner(interaction.user);
             await replyManager.tm(ReplyType.SUCCESS, "button.claim.success", channel.url);
         } catch (e) {
-            await replyManager.error(e.message);
+            await replyManager.error((e as Error).message);
         }
     }
 

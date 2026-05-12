@@ -20,7 +20,7 @@ export default class EditChannelSubcommand implements TwineSubcommand {
         try {
             channel = getChannelFromMember(<GuildMember>interaction.member, interaction.user.id);
         } catch (e) {
-            await replyManager.error(e.message);
+            await replyManager.error((e as Error).message);
             return;
         }
 

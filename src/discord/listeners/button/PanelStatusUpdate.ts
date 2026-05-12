@@ -21,7 +21,7 @@ export default class PanelStatusUpdate implements InteractionListener<ButtonInte
         try {
             channel = getChannelFromPanel(interaction.message.id, interaction.user.id);
         } catch (e) {
-            await replyManager.error(e.message);
+            await replyManager.error((e as Error).message);
             return;
         }
 
