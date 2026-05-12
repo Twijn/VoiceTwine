@@ -5,6 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  sequelize>dottie: ^2.0.7
   sequelize>lodash: ^4.18.1
   sequelize>validator: ^13.15.22
 
@@ -452,8 +453,8 @@ packages:
     resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
     engines: {node: '>=12'}
 
-  dottie@2.0.6:
-    resolution: {integrity: sha512-iGCHkfUc5kFekGiqhe8B/mdaurD+lakO9txNnTvKtA6PISrw86LgqHvRzWYPyoE2Ph5aMIrCw9/uko6XHTKCwA==}
+  dottie@2.0.7:
+    resolution: {integrity: sha512-7lAK2A0b3zZr3UC5aE69CPdCFR4RHW1o2Dr74TqFykxkUCBXSRJum/yPc7g8zRHJqWKomPLHwFLLoUnn8PXXRg==}
     deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   eastasianwidth@0.2.0:
@@ -1684,7 +1685,7 @@ snapshots:
 
   dotenv@16.4.7: {}
 
-  dottie@2.0.6: {}
+  dottie@2.0.7: {}
 
   eastasianwidth@0.2.0: {}
 
@@ -2248,7 +2249,7 @@ snapshots:
       '@types/debug': 4.1.12
       '@types/validator': 13.12.2
       debug: 4.4.0
-      dottie: 2.0.6
+      dottie: 2.0.7
       inflection: 1.13.4
       lodash: 4.18.1
       moment: 2.30.1
