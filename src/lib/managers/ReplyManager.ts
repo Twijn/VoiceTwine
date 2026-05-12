@@ -15,7 +15,7 @@ import {Locale} from "discord-api-types/v10";
 
 export const SUCCESS_COLOR = 0x32a852;
 export const ERROR_COLOR = 0xab4b3c;
-export const THEME_COLOR = 0x819ec9;
+export const THEME_COLOR = 0x244785;
 
 export enum ReplyType {
     INFO = "info",
@@ -24,7 +24,7 @@ export enum ReplyType {
 }
 
 export function createBaseEmbed(guild: Guild | null = null, color: number = THEME_COLOR) {
-    const iconURL = guild?.iconURL() ?? "https://cdn.twijn.net/voicetwine/images/icon/1-64x64.png";
+    const iconURL = guild?.iconURL() ?? "https://cdn.twijn.net/voicetwine/logo-128px.png";
     return new EmbedBuilder()
         .setColor(color)
         .setFooter({

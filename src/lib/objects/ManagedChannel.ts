@@ -111,7 +111,7 @@ export default class ManagedChannel {
             createBaseEmbed(this.discord.guild)
                 .setAuthor({
                     name: `VoiceTwine Panel • 🔊 ${this.name}`,
-                    iconURL: "https://cdn.twijn.net/voicetwine/images/icon/1-64x64.png"
+                    iconURL: "https://cdn.twijn.net/voicetwine/logo-128px.png"
                 })
                 .setTitle("The owner has left this channel!")
                 .setDescription("Click the button below to claim this channel!"),
@@ -178,7 +178,7 @@ export default class ManagedChannel {
             createBaseEmbed(this.discord.guild)
                 .setAuthor({
                     name: `VoiceTwine Panel • 🔊 ${this.name}`,
-                    iconURL: "https://cdn.twijn.net/voicetwine/images/icon/1-64x64.png"
+                    iconURL: "https://cdn.twijn.net/voicetwine/logo-128px.png"
                 })
                 .setTitle("👋 Welcome to your new Twine channel!")
                 .setDescription(
