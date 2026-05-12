@@ -14,9 +14,9 @@ const startApp = async () => {
     await localeManager.updateLanguages();
 
     // Only import and start Discord bot if database initialization was successful
-    await import("./discord");
+    await import("./discord/index.js");
     // Run version check
-    await import("./versionCheck");
+    await import("./versionCheck.js");
 }
 
 startApp().then(() => {

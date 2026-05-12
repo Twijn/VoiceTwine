@@ -67,7 +67,7 @@ export const getChannelFromPanelOrMember = (messageId: string, member: GuildMemb
     }
 }
 
-export const formatVideoQuality = (quality: VideoQualityMode): string => {
+export const formatVideoQuality = (quality: VideoQualityMode | null): string => {
     switch (quality) {
         case VideoQualityMode.Full:
             return "720p";

@@ -21,7 +21,7 @@ export class DiscordChannel extends Model<InferAttributes<DiscordChannel>, Infer
     declare id: string;
     declare type: DiscordChannelType;
     declare status: DiscordChannelStatus;
-    declare members: string;
+    declare members: string | null;
     declare masterChannelId: string;
     declare guildId: string;
     declare ownerId: string;

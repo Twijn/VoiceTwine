@@ -16,7 +16,7 @@ const url = `https://api.github.com/repos/${owner}/${repo}/releases/latest`;
     const data = await fetch(url);
 
     if (data.ok) {
-        const json: GitHubRelease = await data.json();
+        const json = await data.json() as GitHubRelease;
 
         let remoteVersion = json?.tag_name;
 
@@ -34,6 +34,6 @@ const url = `https://api.github.com/repos/${owner}/${repo}/releases/latest`;
             logger.warn("Failed to check for updates: Invalid response");
         }
     } else {
-        logger.warn("Failed to check for updates: ", data.statusText);
+        logger.warn(`Failed to check for updates: ${data.statusText}`);
     }
-})().catch(e => logger.error("Failed to check for updates: ", e));
+})().catch(e => logger.error(`Failed to check for updates: ${String(e)}`));

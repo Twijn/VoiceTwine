@@ -4,10 +4,10 @@
       "es2020"
     ],
     "typeRoots": ["./types", "node_modules/@types"],
-    "module": "commonjs",
+    "module": "Node16",
     "esModuleInterop": true,
     "target": "es2020",
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     "sourceMap": false,
     "noImplicitAny": true,
     "declaration": true,

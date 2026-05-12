@@ -167,8 +167,10 @@ export default class ManagedChannel {
             throw "Channel must be voice based!";
         }
 
+        const createdAtMs = this.database.createdAt?.getTime();
         if (!this.ownerPresent &&
-            Date.now() - this.database.createdAt.getTime() > 5000) {
+            createdAtMs !== undefined &&
+            Date.now() - createdAtMs > 5000) {
             return this.constructClaimableMessageData();
         }
 

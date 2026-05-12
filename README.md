@@ -14,10 +14,15 @@ Create simple, dynamic voice channels to remove clutter from your Discord server
 > Installation of VoiceTwine requires a basic understanding of server administration
 > & Unix commands.
 
-NodeJS and NPM are required to run VoiceTwine. Install the latest on
+NodeJS is required to run VoiceTwine. Install the latest on
 the [NodeJS website](https://nodejs.org/en/download).
-A recent MariaDB installation is also required, with a dedicated username, password,
-and database set up for VoiceTwine.
+
+Enable [Corepack](https://nodejs.org/api/corepack.html) and activate pnpm:
+
+```bash
+corepack enable
+corepack prepare pnpm@10.10.0 --activate
+```
 
 Download a VoiceTwine release from [GitHub](https://github.com/Twijn/VoiceTwine/releases)
 or clone the git repository using the following command:
@@ -59,24 +64,24 @@ DISCORD_CLIENT_SECRET=discord_client_secret
 DISCORD_TOKEN=discord_token
 ```
 
-Install VoiceTwine dependencies with NPM
+Install VoiceTwine dependencies with pnpm
 ```bash
-npm ci
+pnpm install --frozen-lockfile
 ```
 
 Build VoiceTwine
 ```bash
-npm run build
+pnpm run build
 ```
 
 Create and seed the database
 ```bash
-npm run migrate
+pnpm run migrate
 ```
 
 Start VoiceTwine
 ```bash
-npm start
+pnpm start
 ```
 
 Now you're (effectively) done!
@@ -122,17 +127,23 @@ Update source code by downloading a release or using `git pull`.
 
 Install any missing/updated dependencies
 ```bash
-npm ci
+pnpm install --frozen-lockfile
 ```
 
 Build source code
 ```bash
-npm run build
+pnpm run build
 ```
 
 Update the database
 ```bash
-npm run migrate
+pnpm run migrate
+```
+
+If you do not use SQLite, you can reduce optional native dependency surface by installing without optional dependencies:
+
+```bash
+pnpm install --frozen-lockfile --no-optional
 ```
 
 You may now restart the application!

@@ -1,12 +1,12 @@
 import {
-    APIInteractionGuildMember,
+    CacheType,
     EmbedBuilder,
     Guild, GuildMember,
-    InteractionCallbackResponse,
-    InteractionDeferReplyOptions, InteractionEditReplyOptions, InteractionReplyOptions,
+    InteractionEditReplyOptions, InteractionReplyOptions,
     InteractionResponse,
     Message,
-    MessageFlags, MessagePayload
+    MessageFlags,
+    RepliableInteraction,
 } from "discord.js";
 import { version } from "../utils";
 
@@ -23,7 +23,7 @@ export enum ReplyType {
     ERROR = "error",
 }
 
-export function createBaseEmbed(guild: Guild = null, color: number = THEME_COLOR) {
+export function createBaseEmbed(guild: Guild | null = null, color: number = THEME_COLOR) {
     const iconURL = guild?.iconURL() ?? "https://cdn.twijn.net/voicetwine/images/icon/1-64x64.png";
     return new EmbedBuilder()
         .setColor(color)
@@ -33,24 +33,17 @@ export function createBaseEmbed(guild: Guild = null, color: number = THEME_COLOR
         });
 }
 
-export type TwineInteraction = {
-    member: GuildMember|APIInteractionGuildMember;
-    reply: (message: InteractionReplyOptions) => Promise<Message>;
-    editReply: (message: string|MessagePayload|InteractionEditReplyOptions) => Promise<InteractionResponse|Message>;
-    deferred: boolean;
-    deferReply: (options?: InteractionDeferReplyOptions) => Promise<InteractionCallbackResponse>;
-    guild: Guild;
-}
+export type TwineInteraction = RepliableInteraction<CacheType>;
 
 export default class ReplyManager<T extends TwineInteraction> {
     private readonly interaction: T;
 
-    private repliedWith: ReplyType = null;
+    private repliedWith: ReplyType | null = null;
 
     private createMessageData(title: string, messageText: string, color: number) {
         return {
             embeds: [
-                createBaseEmbed(this.interaction.guild, color)
+                createBaseEmbed(this.interaction.guild ?? null, color)
                     .setTitle(title)
                     .setDescription(messageText),
             ],
@@ -60,9 +53,9 @@ export default class ReplyManager<T extends TwineInteraction> {
 
     private reply(title: string, messageText: string, color: number): Promise<InteractionResponse|Message> {
         if (this.interaction.deferred) {
-            return this.interaction.editReply(this.createMessageData(title, messageText, color) as InteractionEditReplyOptions);
+            return this.interaction.editReply(this.createMessageData(title, messageText, color) as InteractionEditReplyOptions) as Promise<InteractionResponse|Message>;
         } else {
-            return this.interaction.reply(this.createMessageData(title, messageText, color) as InteractionReplyOptions);
+            return this.interaction.reply(this.createMessageData(title, messageText, color) as InteractionReplyOptions) as Promise<InteractionResponse|Message>;
         }
     }
 
@@ -88,16 +81,16 @@ export default class ReplyManager<T extends TwineInteraction> {
                 }
         }
 
-        return this.interaction.editReply(this.createMessageData(title, messageText, color) as InteractionEditReplyOptions);
+        return this.interaction.editReply(this.createMessageData(title, messageText, color) as InteractionEditReplyOptions) as Promise<InteractionResponse|Message>;
     }
 
-    public defer(ephemeral: boolean = true) {
+    public defer(ephemeral: boolean = true): Promise<InteractionResponse|Message> {
         if (ephemeral) {
             return this.interaction.deferReply({
                 flags: MessageFlags.Ephemeral,
-            });
+            }) as Promise<InteractionResponse|Message>;
         } else {
-            return this.interaction.deferReply();
+            return this.interaction.deferReply() as Promise<InteractionResponse|Message>;
         }
     }
 
